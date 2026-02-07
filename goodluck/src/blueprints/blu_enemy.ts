@@ -27,34 +27,19 @@ export function blueprint_enemy(game: Game) {
             Enemies.push(enemy_data);
         }),
         children(
-            // Body lower.
+            // Enemy body (single red rectangle).
             [
-                transform([0, 0, 0], [0, 0, 0, 1], [0.7, 0.7, 0.6]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.2, 0.2, 1]),
-            ],
-            // Body mid.
-            [
-                transform([0, 0.6, 0], [0, 0, 0, 1], [0.6, 0.6, 0.5]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.85, 0.25, 0.2, 1]),
-            ],
-            // Body upper.
-            [
-                transform([0, 1.1, 0], [0, 0, 0, 1], [0.5, 0.5, 0.45]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.9, 0.2, 0.15, 1]),
-            ],
-            // Head.
-            [
-                transform([0, 1.6, 0], [0, 0, 0, 1], [0.42, 0.4, 0.42]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.9, 0.3, 0.25, 1]),
+                transform([0, 0.7, 0], [0, 0, 0, 1], [0.6, 1.6, 0.4]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.85, 0.2, 0.2, 1]),
             ],
             // Health bar background (dark).
             [
-                transform([0, 2.2, 0], [0, 0, 0, 1], [1.0, 0.1, 0.1]),
+                transform([0, 1.8, 0], [0, 0, 0, 1], [1.0, 0.1, 0.1]),
                 render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.15, 0.15, 0.15, 1], 0, 1.0),
             ],
             // Health bar foreground (green).
             [
-                transform([0, 2.2, 0.01], [0, 0, 0, 1], [1.0, 0.1, 0.1]),
+                transform([0, 1.8, 0.01], [0, 0, 0, 1], [1.0, 0.1, 0.1]),
                 render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.2, 0.9, 0.2, 1], 0, 1.0),
                 callback((_game, entity) => {
                     enemy_data.HealthBar = entity;

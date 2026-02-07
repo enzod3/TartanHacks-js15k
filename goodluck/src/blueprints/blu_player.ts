@@ -22,28 +22,10 @@ export function blueprint_player(game: Game) {
         collide(true, Layer.Player, Layer.Terrain),
         rigid_body(RigidKind.Dynamic),
         children(
-            // Bean lower body (wide base).
+            // Player body (single rectangle).
             [
-                transform([0, -0.1, 0], [0, 0, 0, 1], [0.7, 0.7, 0.6]),
+                transform([0, 0.7, 0], [0, 0, 0, 1], [0.6, 1.6, 0.4]),
                 render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.85, 0.7, 0.45, 1]),
-                callback((_game, entity) => PlayerBodyParts.push(entity)),
-            ],
-            // Bean mid body.
-            [
-                transform([0, 0.55, 0], [0, 0, 0, 1], [0.6, 0.7, 0.5]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.85, 0.7, 0.45, 1]),
-                callback((_game, entity) => PlayerBodyParts.push(entity)),
-            ],
-            // Bean upper body (tapered).
-            [
-                transform([0, 1.1, 0], [0, 0, 0, 1], [0.5, 0.6, 0.45]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.88, 0.72, 0.47, 1]),
-                callback((_game, entity) => PlayerBodyParts.push(entity)),
-            ],
-            // Bean head.
-            [
-                transform([0, 1.6, 0], [0, 0, 0, 1], [0.42, 0.4, 0.42]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.9, 0.75, 0.5, 1]),
                 callback((_game, entity) => PlayerBodyParts.push(entity)),
             ],
             // Camera rig anchor.

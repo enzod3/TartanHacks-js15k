@@ -44,7 +44,7 @@ export function sys_damage(game: Game, delta: number) {
                         Enemies.splice(i, 1);
 
                         // Spawn red debris particles.
-                        for (let j = 0; j < 12; j++) {
+                        for (let j = 0; j < 30; j++) {
                             let vx = (Math.random() - 0.5) * 15;
                             let vy = Math.random() * 12 + 4;
                             let vz = (Math.random() - 0.5) * 15;

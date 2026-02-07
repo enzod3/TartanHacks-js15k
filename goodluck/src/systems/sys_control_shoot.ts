@@ -16,16 +16,20 @@ export function sys_control_shoot(game: Game, delta: number) {
     let cam_transform = game.World.Transform[CameraChild];
     let world_matrix = cam_transform.World;
 
+    // mat4_get_forward returns +Z axis; camera looks along -Z.
     let forward: Vec3 = [0, 0, 0];
     mat4_get_forward(forward, world_matrix);
+    forward[0] = -forward[0];
+    forward[1] = -forward[1];
+    forward[2] = -forward[2];
 
     let position: Vec3 = [0, 0, 0];
     mat4_get_translation(position, world_matrix);
 
-    // Spawn just below camera.
-    position[0] += forward[0] * 1.0;
-    position[1] += forward[1] * 1.0 - 0.3;
-    position[2] += forward[2] * 1.0;
+    // Spawn slightly in front and below camera.
+    position[0] += forward[0] * 1.5;
+    position[1] += forward[1] * 1.5 - 0.3;
+    position[2] += forward[2] * 1.5;
 
     let bullet = instantiate(game, blueprint_bullet(game));
     set_position(position[0], position[1], position[2])(game, bullet);
