@@ -109,7 +109,7 @@ export class Game extends Game3D {
         // Rendering.
         sys_light(this, delta);
         sys_render_forward(this, delta);
-        sys_debug_lines(this, delta);
+        //sys_debug_lines(this, delta);
         sys_ui(this, delta);
     }
 }

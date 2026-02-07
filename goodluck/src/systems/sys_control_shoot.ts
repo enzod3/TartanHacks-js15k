@@ -11,7 +11,7 @@ import {play_sound} from "../sound.js";
 const BULLET_SPEED = 80;
 const INFANTRY_COOLDOWN = 0.15;
 const SHOTGUN_COOLDOWN = 0.6;
-const SHOTGUN_SPREAD = Math.PI / 14; // ~13 degrees half-spread
+const SHOTGUN_SPREAD = Math.PI / 20; // ~13 degrees half-spread
 const SHOTGUN_JITTER = 0.12;
 // Diamond/cross: 2-4-4-2 rows top to bottom.
 // Each entry is [h_fraction, v_fraction] from -1 to 1.
