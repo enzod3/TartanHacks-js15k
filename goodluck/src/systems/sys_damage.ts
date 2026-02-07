@@ -7,7 +7,7 @@ import {lifespan} from "../components/com_lifespan.js";
 import {render_colored_shaded} from "../components/com_render.js";
 import {rigid_body, RigidKind} from "../components/com_rigid_body.js";
 import {set_position, set_scale, transform} from "../components/com_transform.js";
-import {Game, Layer, WeaponType} from "../game.js";
+import {Game, Layer, WaveState, WeaponType} from "../game.js";
 import {play_hit, play_hurt, play_kill} from "../sound.js";
 import {Has} from "../world.js";
 
@@ -78,6 +78,14 @@ export function sys_damage(game: Game, delta: number) {
             if ((other_collide.Layers & Layer.Player) && contact_timer <= 0) {
                 game.PlayerHealth--;
                 contact_timer = CONTACT_DAMAGE_COOLDOWN;
+                if (game.PlayerHealth <= 0) {
+                    game.PlayerHealth = 0;
+                    game.WaveState = WaveState.Dead;
+                    game.EndTime = Date.now();
+                    game.Paused = true;
+                    document.exitPointerLock();
+                    return;
+                }
                 play_hurt();
             }
         }

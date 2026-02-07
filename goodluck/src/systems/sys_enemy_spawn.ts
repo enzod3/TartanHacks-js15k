@@ -2,11 +2,11 @@ import {instantiate} from "../../lib/game.js";
 import {blueprint_enemy, Enemies} from "../blueprints/blu_enemy.js";
 import {blueprint_evac} from "../blueprints/blu_evac.js";
 import {blueprint_powerup} from "../blueprints/blu_powerup.js";
-import {blueprint_upgrade_station, UpgradeType} from "../blueprints/blu_upgrade_station.js";
+import {UpgradeType} from "../blueprints/blu_upgrade_station.js";
 import {destroy_all} from "../components/com_children.js";
 import {set_position} from "../components/com_transform.js";
 import {Game, WaveState, WeaponType} from "../game.js";
-import {StationTypes, set_evac_entity} from "./sys_upgrade_stations.js";
+import {set_evac_entity} from "./sys_upgrade_stations.js";
 
 const SPAWN_INTERVAL = 1.5;
 const MAP_RADIUS = 37;
@@ -62,9 +62,10 @@ export function sys_enemy_spawn(game: Game, delta: number) {
                     ]);
                     set_evac_entity(evac);
                 } else {
-                    // Transition to upgrading — spawn stations.
+                    // Transition to upgrading — show UI choices.
                     game.WaveState = WaveState.Upgrading;
                     spawn_upgrade_stations(game);
+                    document.exitPointerLock();
                 }
             }
             break;
@@ -78,24 +79,8 @@ export function sys_enemy_spawn(game: Game, delta: number) {
 
 function spawn_upgrade_stations(game: Game) {
     let choices = get_upgrade_choices(game);
-    let positions: [number, number, number][] = [
-        [-5, 0, -8],
-        [0, 0, -8],
-        [5, 0, -8],
-    ];
-
-    game.UpgradeLabels = [];
-    for (let i = 0; i < choices.length; i++) {
-        let type = choices[i];
-        let [x, y, z] = positions[i];
-        let entity = instantiate(game, [
-            ...blueprint_upgrade_station(game, type),
-            set_position(x, y, z),
-        ]);
-        game.UpgradeStations.push(entity);
-        StationTypes.set(entity, type);
-        game.UpgradeLabels.push(upgrade_label(type));
-    }
+    game.UpgradeChoices = choices;
+    game.UpgradeLabels = choices.map(upgrade_label);
 }
 
 function upgrade_label(type: UpgradeType): string {

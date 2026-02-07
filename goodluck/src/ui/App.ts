@@ -4,9 +4,28 @@ import {Action} from "../actions.js";
 import {Game, WaveState} from "../game.js";
 import {Fullscreen} from "./Fullscreen.js";
 
+const UPGRADE_DESCS: Record<string, string> = {
+    "Rock Thrower": "Hurl boulders that pierce foes",
+    "Shotgun": "Spread shot, close-range devastation",
+    "Rifle Dmg+": "Increase rifle damage",
+    "Dmg+": "Increase weapon damage",
+    "Fire Rate+": "Shoot faster",
+    "Continue": "Press on without upgrades",
+};
+
+function format_time(ms: number): string {
+    let s = Math.floor(ms / 1000);
+    let m = Math.floor(s / 60);
+    s = s % 60;
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
+}
+
 export function App(game: Game) {
     if (game.WaveState === WaveState.Won) {
         return WonOverlay(game);
+    }
+    if (game.WaveState === WaveState.Dead) {
+        return DeadOverlay(game);
     }
 
     let hp_pct = Math.max(0, (game.PlayerHealth / game.PlayerMaxHealth) * 100);
@@ -23,7 +42,7 @@ export function App(game: Game) {
             font-size:24px;
             text-shadow:0 0 4px rgba(0,0,0,0.8);
             line-height:1;
-        ">+</div>
+        ">${game.WaveState !== WaveState.Upgrading ? "+" : ""}</div>
         <div style="
             position:fixed;
             top:10px;left:50%;
@@ -72,14 +91,61 @@ export function App(game: Game) {
             font-family:Arial,sans-serif;
             text-shadow:0 0 8px rgba(0,200,255,0.8);
         ">3rd Person: ${Math.ceil(game.ThirdPersonTimer)}s</div>` : ""}
+        ${game.WaveState === WaveState.Upgrading ? UpgradeOverlay(game) : ""}
+    </div>`;
+}
+
+function UpgradeOverlay(game: Game): string {
+    let buttons = "";
+    for (let i = 0; i < game.UpgradeLabels.length; i++) {
+        let label = game.UpgradeLabels[i];
+        let desc = UPGRADE_DESCS[label] || "";
+        buttons += `<button
+            onclick="$(${Action.ChooseUpgrade},${i})"
+            style="
+                pointer-events:auto;
+                cursor:pointer;
+                padding:14px 24px;
+                margin:8px;
+                min-width:180px;
+                background:linear-gradient(180deg,#3a332b,#2a2520);
+                border:2px solid #5a5040;
+                border-radius:4px;
+                color:#d4c8a0;
+                font-family:Georgia,serif;
+                font-size:18px;
+                text-shadow:1px 1px 2px rgba(0,0,0,0.8);
+                box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),inset 0 -2px 4px rgba(0,0,0,0.5),0 2px 8px rgba(0,0,0,0.6);
+            "
+        ><div style="font-size:20px;margin-bottom:4px;">${label}</div><div style="font-size:12px;color:#a89870;">${desc}</div></button>`;
+    }
+    return `<div style="
+        position:fixed;
+        top:0;left:0;right:0;bottom:0;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        pointer-events:none;
+        z-index:50;
+    ">
+        <div style="
+            color:#d4c8a0;
+            font-family:Georgia,serif;
+            font-size:28px;
+            margin-bottom:20px;
+            text-shadow:0 0 10px rgba(0,0,0,0.9),0 2px 4px rgba(0,0,0,0.7);
+            pointer-events:none;
+        ">Choose Your Upgrade</div>
+        <div style="display:flex;flex-wrap:wrap;justify-content:center;">
+            ${buttons}
+        </div>
     </div>`;
 }
 
 function get_top_html(game: Game, remaining: number): string {
     if (game.WaveState === WaveState.Upgrading) {
-        let labels = game.UpgradeLabels;
-        let choices = labels.join("  |  ");
-        return `Choose Your Upgrade<br><span style="font-size:14px;color:#ff0">${choices}</span>`;
+        return `Wave ${game.Wave} Complete`;
     }
     if (game.WaveState === WaveState.Evac) {
         return "Get to the Evac Point!";
@@ -89,6 +155,7 @@ function get_top_html(game: Game, remaining: number): string {
 
 function WonOverlay(game: Game) {
     let upgrades = game.UpgradesPicked.length > 0 ? game.UpgradesPicked.join(", ") : "None";
+    let elapsed = format_time(game.EndTime - game.StartTime);
     return html`<div style="
         position:fixed;
         top:0;left:0;right:0;bottom:0;
@@ -109,6 +176,9 @@ function WonOverlay(game: Game) {
         <div style="color:#fff;font-size:20px;margin-bottom:10px;">
             Total Kills: ${game.TotalKills}
         </div>
+        <div style="color:#fff;font-size:20px;margin-bottom:10px;">
+            Time: ${elapsed}
+        </div>
         <div style="color:#ccc;font-size:16px;margin-bottom:30px;">
             Upgrades: ${upgrades}
         </div>
@@ -124,5 +194,49 @@ function WonOverlay(game: Game) {
                 cursor:pointer;
             "
         >Play Again</button>
+    </div>`;
+}
+
+function DeadOverlay(game: Game) {
+    let elapsed = format_time(game.EndTime - game.StartTime);
+    let upgrades = game.UpgradesPicked.length > 0 ? game.UpgradesPicked.join(", ") : "None";
+    return html`<div style="
+        position:fixed;
+        top:0;left:0;right:0;bottom:0;
+        background:rgba(0,0,0,0.85);
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        font-family:Arial,sans-serif;
+        z-index:100;
+    ">
+        <div style="color:#c44;font-size:36px;margin-bottom:20px;text-shadow:0 0 12px rgba(255,0,0,0.6);">
+            You Died
+        </div>
+        <div style="color:#fff;font-size:20px;margin-bottom:10px;">
+            Survived: ${elapsed}
+        </div>
+        <div style="color:#fff;font-size:20px;margin-bottom:10px;">
+            Wave: ${game.Wave} / ${game.MaxWaves}
+        </div>
+        <div style="color:#fff;font-size:20px;margin-bottom:10px;">
+            Total Kills: ${game.TotalKills}
+        </div>
+        <div style="color:#ccc;font-size:16px;margin-bottom:30px;">
+            Upgrades: ${upgrades}
+        </div>
+        <button
+            onclick="$(${Action.PlayAgain})"
+            style="
+                padding:15px 40px;
+                background:#c44;
+                color:#fff;
+                border:none;
+                border-radius:8px;
+                font-size:22px;
+                cursor:pointer;
+            "
+        >Try Again</button>
     </div>`;
 }

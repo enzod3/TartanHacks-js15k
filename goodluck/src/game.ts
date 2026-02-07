@@ -36,6 +36,7 @@ import {sys_ui} from "./systems/sys_ui.js";
 import {sys_enemy_ai} from "./systems/sys_enemy_ai.js";
 import {sys_enemy_spawn} from "./systems/sys_enemy_spawn.js";
 
+import {UpgradeType} from "./blueprints/blu_upgrade_station.js";
 import {World} from "./world.js";
 import {sys_boundary} from "./systems/sys_boundary.js";
 import {sys_powerup} from "./systems/sys_powerup.js";
@@ -96,6 +97,9 @@ export class Game extends Game3D {
     RockEntity: Entity = -1;
     FireRateMultiplier = 1;
     UpgradeLabels: string[] = [];
+    UpgradeChoices: UpgradeType[] = [];
+    StartTime = 0;
+    EndTime = 0;
 
     override FrameUpdate(delta: number) {
         if (!this.Paused) {
@@ -175,6 +179,7 @@ export const enum WaveState {
     Upgrading,
     Evac,
     Won,
+    Dead,
 }
 
 export const enum WeaponType {

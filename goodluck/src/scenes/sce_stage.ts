@@ -36,6 +36,8 @@ export function scene_stage(game: Game) {
     game.RockEntity = -1;
     game.FireRateMultiplier = 1;
     game.UpgradeLabels = [];
+    game.UpgradeChoices = [];
+    game.StartTime = Date.now();
 
     // Spawn first powerup.
     let pa = Math.random() * Math.PI * 2;
