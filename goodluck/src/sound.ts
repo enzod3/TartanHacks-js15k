@@ -5,6 +5,7 @@ let zzfxR = 44100;
 
 function ensure_ctx() {
     if (!ctx) ctx = new AudioContext();
+    if (ctx.state === "suspended") ctx.resume();
 }
 
 function zzfxG(
@@ -63,13 +64,23 @@ declare var zzfxM: (...args: any[]) => number[][];
 
 // --- Music playback ---
 let music_node: AudioBufferSourceNode | null = null;
+let music_gain: GainNode | null = null;
 
 export function play_music(song: any[], loop = true) {
     ensure_ctx();
     stop_music();
     let data = zzfxM(...song);
-    music_node = zzfxP(data[0], data[1]);
-    music_node.loop = loop;
+    music_gain = ctx.createGain();
+    music_gain.gain.value = 3;
+    music_gain.connect(ctx.destination);
+    let e = ctx.createBufferSource();
+    let f = ctx.createBuffer(data.length, data[0].length, zzfxR);
+    data.map((d: number[], i: number) => f.getChannelData(i).set(d));
+    e.buffer = f;
+    e.connect(music_gain);
+    e.loop = loop;
+    e.start();
+    music_node = e;
     return music_node;
 }
 

@@ -119,8 +119,8 @@ export class Game extends Game3D {
             sys_powerup(this, delta);
         }
 
-        // Start music on first click (AudioContext needs user gesture).
-        if (!this.MusicStarted && this.InputDelta["Mouse0"] === 1) {
+        // Start music on first click/tap (AudioContext needs user gesture).
+        if (!this.MusicStarted && (this.InputDelta["Mouse0"] === 1 || this.InputDelta["Touch0"] === 1)) {
             this.MusicStarted = true;
             play_music(SONG);
         }
