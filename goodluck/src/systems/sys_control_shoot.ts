@@ -6,6 +6,7 @@ import {CameraChild} from "../blueprints/blu_camera_follow.js";
 import {CameraAnchor} from "../blueprints/blu_player.js";
 import {set_position, set_scale} from "../components/com_transform.js";
 import {CameraMode, Game} from "../game.js";
+import {play_sound} from "../sound.js";
 
 const BULLET_SPEED = 80;
 
@@ -13,6 +14,8 @@ export function sys_control_shoot(game: Game, delta: number) {
     if (game.InputDelta["Mouse0"] !== 1) {
         return;
     }
+
+    play_sound(800, 0.1);
 
     let forward: Vec3 = [0, 0, 0];
     let position: Vec3 = [0, 0, 0];
