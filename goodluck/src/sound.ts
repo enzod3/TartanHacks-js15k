@@ -52,11 +52,13 @@ function zzfxP(...t: number[][]) {
     return e;
 }
 
-// Expose globals for zzfxm.min.js (expects zzfxG, zzfxR, zzfxP on window).
+// Expose globals needed by zzfxm.min.js.
 (window as any).zzfxG = zzfxG;
 (window as any).zzfxR = zzfxR;
-(window as any).zzfxP = zzfxP;
 
+// ZzFXM (v2.0.3) | (C) Keith Clark | MIT
+// Side-effect import — sets window.zzfxM.
+import "./zzfxm.min.js";
 declare var zzfxM: (...args: any[]) => number[][];
 
 // --- Music playback ---
@@ -66,7 +68,7 @@ export function play_music(song: any[], loop = true) {
     ensure_ctx();
     stop_music();
     let data = zzfxM(...song);
-    music_node = zzfxP(...data);
+    music_node = zzfxP(data[0], data[1]);
     music_node.loop = loop;
     return music_node;
 }
