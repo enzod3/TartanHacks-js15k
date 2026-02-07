@@ -1,4 +1,5 @@
 import {Quat, Vec3} from "../lib/math.js";
+import {sys_control_touch_move} from "./systems/sys_control_touch_move.js";
 import {Entity} from "../lib/world.js";
 import {Game3D} from "../lib/game.js";
 import {MAX_FORWARD_LIGHTS} from "../materials/light.js";
@@ -19,7 +20,7 @@ import {sys_damage} from "./systems/sys_damage.js";
 import {sys_lifespan} from "./systems/sys_lifespan.js";
 import {sys_collide} from "./systems/sys_collide.js";
 import {sys_control_jump} from "./systems/sys_control_jump.js";
-import {sys_control_joystick} from "./systems/sys_control_joystick.js";
+//import {sys_control_joystick} from "./systems/sys_control_joystick.js";
 import {sys_control_keyboard} from "./systems/sys_control_keyboard.js";
 import {sys_control_mouse_move} from "./systems/sys_control_mouse_move.js";
 import {sys_light} from "./systems/sys_light.js";
@@ -66,8 +67,8 @@ export class Game extends Game3D {
     CameraFromPos: Vec3 = [0, 1.8, 0];
     CameraFromRot: Quat = [0, 1, 0, 0];
 
-    JoystickX = 0;
-    JoystickY = 0;
+    // JoystickX = 0;
+    // JoystickY = 0;
 
     PlayerHealth = 10;
     PlayerMaxHealth = 10;
@@ -96,7 +97,8 @@ export class Game extends Game3D {
 
             // Player input.
             sys_control_keyboard(this, delta);
-            sys_control_joystick(this, delta);
+            // sys_control_joystick(this, delta);
+            sys_control_touch_move(this, delta);
             sys_control_mouse_move(this, delta);
             sys_control_jump(this, delta);
             sys_camera_toggle(this, delta);
