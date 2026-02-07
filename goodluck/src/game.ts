@@ -19,10 +19,10 @@ import {sys_control_shoot} from "./systems/sys_control_shoot.js";
 import {sys_damage} from "./systems/sys_damage.js";
 import {sys_lifespan} from "./systems/sys_lifespan.js";
 import {sys_collide} from "./systems/sys_collide.js";
-import {sys_control_jump} from "./systems/sys_control_jump.js";
+//import {sys_control_jump} from "./systems/sys_control_jump.js";
 //import {sys_control_joystick} from "./systems/sys_control_joystick.js";
-import {sys_control_keyboard} from "./systems/sys_control_keyboard.js";
-import {sys_control_mouse_move} from "./systems/sys_control_mouse_move.js";
+//import {sys_control_keyboard} from "./systems/sys_control_keyboard.js";
+//import {sys_control_mouse_move} from "./systems/sys_control_mouse_move.js";
 import {sys_light} from "./systems/sys_light.js";
 import {sys_mimic} from "./systems/sys_mimic.js";
 import {sys_move} from "./systems/sys_move.js";
@@ -112,11 +112,11 @@ export class Game extends Game3D {
             sys_transform(this, delta);
 
             // Player input.
-            sys_control_keyboard(this, delta);
+            //sys_control_keyboard(this, delta);
             // sys_control_joystick(this, delta);
             sys_control_touch_move(this, delta);
-            sys_control_mouse_move(this, delta);
-            sys_control_jump(this, delta);
+            //sys_control_mouse_move(this, delta);
+            //sys_control_jump(this, delta);
             sys_camera_toggle(this, delta);
 
             let upgrading_or_evac = this.WaveState === WaveState.Upgrading || this.WaveState === WaveState.Evac;
