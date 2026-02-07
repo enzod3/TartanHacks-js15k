@@ -10,6 +10,7 @@ import {tex_ground} from "./textures/tex_ground.js";
 import {tex_rock} from "./textures/tex_rock.js";
 import {tex_water} from "./textures/tex_water.js";
 import {tex_wood} from "./textures/tex_wood.js";
+import {tex_zombie} from "./textures/tex_zombie.js";
 import {sys_camera} from "./systems/sys_camera.js";
 import {sys_camera_toggle} from "./systems/sys_camera_toggle.js";
 import {sys_control_shoot} from "./systems/sys_control_shoot.js";
@@ -50,6 +51,7 @@ export class Game extends Game3D {
     TexRock = tex_rock(this.Gl);
     TexWater = tex_water(this.Gl);
     TexWood = tex_wood(this.Gl);
+    TexZombie = tex_zombie(this.Gl);
 
     LightPositions = new Float32Array(4 * MAX_FORWARD_LIGHTS);
     LightDetails = new Float32Array(4 * MAX_FORWARD_LIGHTS);

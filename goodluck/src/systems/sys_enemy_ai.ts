@@ -366,6 +366,16 @@ export function sys_enemy_ai(game: Game, delta: number) {
         transform.Translation[2] += enemy.VelZ * delta;
         game.World.Signature[enemy.Entity] |= Has.Dirty;
 
+        // Rotate zombie to face movement direction.
+        let vl2 = Math.sqrt(enemy.VelX * enemy.VelX + enemy.VelZ * enemy.VelZ);
+        if (vl2 > 0.5) {
+            let facing = Math.atan2(enemy.VelX, enemy.VelZ) + Math.PI;
+            transform.Rotation[0] = 0;
+            transform.Rotation[1] = Math.sin(facing / 2);
+            transform.Rotation[2] = 0;
+            transform.Rotation[3] = Math.cos(facing / 2);
+        }
+
         // Billboard health bar to face player.
         let angle = Math.atan2(px - ex, pz - ez);
         let bar_transform = game.World.Transform[enemy.HealthBar];
@@ -374,5 +384,20 @@ export function sys_enemy_ai(game: Game, delta: number) {
         bar_transform.Rotation[2] = 0;
         bar_transform.Rotation[3] = Math.cos(angle / 2);
         game.World.Signature[enemy.HealthBar] |= Has.Dirty;
+
+        // Animate legs — swing based on speed.
+        if (enemy.LeftLeg && enemy.RightLeg) {
+            let speed = Math.sqrt(enemy.VelX * enemy.VelX + enemy.VelZ * enemy.VelZ);
+            let swing = Math.sin(game.Now / 1000 * 10) * 0.3 * Math.min(1, speed / SPEED);
+            let left_leg = game.World.Transform[enemy.LeftLeg];
+            let right_leg = game.World.Transform[enemy.RightLeg];
+            // Rotate around X axis (pitch) for forward/back swing.
+            left_leg.Rotation[0] = Math.sin(swing / 2);
+            left_leg.Rotation[3] = Math.cos(swing / 2);
+            right_leg.Rotation[0] = Math.sin(-swing / 2);
+            right_leg.Rotation[3] = Math.cos(-swing / 2);
+            game.World.Signature[enemy.LeftLeg] |= Has.Dirty;
+            game.World.Signature[enemy.RightLeg] |= Has.Dirty;
+        }
     }
 }
