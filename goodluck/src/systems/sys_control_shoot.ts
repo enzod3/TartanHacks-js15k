@@ -2,6 +2,7 @@ import {mat4_get_forward, mat4_get_translation} from "../../lib/mat4.js";
 import {Vec3} from "../../lib/math.js";
 import {instantiate} from "../../lib/game.js";
 import {blueprint_bullet} from "../blueprints/blu_bullet.js";
+import {blueprint_grenade} from "../blueprints/blu_grenade.js";
 import {blueprint_rock} from "../blueprints/blu_rock.js";
 import {CameraChild} from "../blueprints/blu_camera_follow.js";
 import {CameraAnchor} from "../blueprints/blu_player.js";
@@ -15,6 +16,9 @@ const SHOTGUN_COOLDOWN = 0.6;
 const ROCK_SPEED = 20;
 const ROCK_ARC = 5;
 const THROWER_COOLDOWN = 1.5;
+const GRENADE_SPEED = 18;
+const GRENADE_ARC = 6;
+const GRENADE_COOLDOWN = 2.5;
 const SHOTGUN_SPREAD = Math.PI / 20; // ~13 degrees half-spread
 const SHOTGUN_JITTER = 0.12;
 // Diamond/cross: 2-4-4-2 rows top to bottom.
@@ -93,6 +97,18 @@ export function sys_control_shoot(game: Game, delta: number) {
         rb.VelocityLinear[2] = forward[2] * ROCK_SPEED;
 
         game.RockEntity = rock;
+    } else if (game.Weapon === WeaponType.Grenade) {
+        play_gunshot(0.5);
+        game.ShootCooldown = GRENADE_COOLDOWN * game.FireRateMultiplier;
+
+        let grenade = instantiate(game, blueprint_grenade(game));
+        set_position(position[0], position[1], position[2])(game, grenade);
+        set_scale(0.3, 0.3, 0.3)(game, grenade);
+
+        let rb = game.World.RigidBody[grenade];
+        rb.VelocityLinear[0] = forward[0] * GRENADE_SPEED;
+        rb.VelocityLinear[1] = forward[1] * GRENADE_SPEED + GRENADE_ARC;
+        rb.VelocityLinear[2] = forward[2] * GRENADE_SPEED;
     } else if (game.Weapon === WeaponType.Shotgun) {
         play_gunshot(0.6);
         game.ShootCooldown = SHOTGUN_COOLDOWN * game.FireRateMultiplier;

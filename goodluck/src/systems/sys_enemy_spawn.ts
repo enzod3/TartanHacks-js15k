@@ -91,6 +91,7 @@ function upgrade_label(type: UpgradeType): string {
         case UpgradeType.DamageUp: return "Dmg+";
         case UpgradeType.FireRateUp: return "Fire Rate+";
         case UpgradeType.Continue: return "Continue";
+        case UpgradeType.Grenade: return "Grenade";
     }
 }
 
@@ -102,8 +103,8 @@ function get_upgrade_choices(game: Game): UpgradeType[] {
         return [UpgradeType.Thrower, UpgradeType.Shotgun, UpgradeType.InfantryDmg];
     } else {
         // Rounds 2 & 3: stat upgrades.
-        if (game.Weapon === WeaponType.Thrower) {
-            return [UpgradeType.DamageUp, UpgradeType.FireRateUp, UpgradeType.Continue];
+        if (game.Weapon === WeaponType.Thrower || game.Weapon === WeaponType.Grenade) {
+            return [UpgradeType.Grenade, UpgradeType.FireRateUp];
         } else {
             return [UpgradeType.DamageUp, UpgradeType.FireRateUp];
         }

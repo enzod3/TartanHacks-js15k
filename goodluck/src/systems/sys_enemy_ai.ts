@@ -156,21 +156,26 @@ export function sys_enemy_ai(game: Game, delta: number) {
             enemy.VelZ = (enemy.VelZ / vl) * current_speed; 
         }
 
-        // Collision push-out.
+        // Collision push-out (terrain + enemy hits).
         let collide = game.World.Collide[enemy.Entity];
         if (collide) {
             for (let collision of collide.Collisions) {
                 let other = collision.Other;
                 if (!(game.World.Signature[other] & Has.Collide)) continue;
-                if (!(game.World.Collide[other].Layers & Layer.Terrain)) continue;
-                transform.Translation[0] += collision.Hit[0];
-                transform.Translation[2] += collision.Hit[2];
-                let nx = collision.Hit[0], nz = collision.Hit[2];
-                let nl = Math.sqrt(nx * nx + nz * nz);
-                if (nl > 0.001) {
-                    nx /= nl; nz /= nl;
-                    let dot = enemy.VelX * nx + enemy.VelZ * nz;
-                    if (dot < 0) { enemy.VelX -= dot * nx; enemy.VelZ -= dot * nz; }
+                let other_layers = game.World.Collide[other].Layers;
+                if (other_layers & Layer.Terrain) {
+                    transform.Translation[0] += collision.Hit[0];
+                    transform.Translation[2] += collision.Hit[2];
+                    let nx = collision.Hit[0], nz = collision.Hit[2];
+                    let nl = Math.sqrt(nx * nx + nz * nz);
+                    if (nl > 0.001) {
+                        nx /= nl; nz /= nl;
+                        let dot = enemy.VelX * nx + enemy.VelZ * nz;
+                        if (dot < 0) { enemy.VelX -= dot * nx; enemy.VelZ -= dot * nz; }
+                    }
+                } else if (other_layers & Layer.Enemy) {
+                    transform.Translation[0] += collision.Hit[0] * 0.5;
+                    transform.Translation[2] += collision.Hit[2] * 0.5;
                 }
             }
         }

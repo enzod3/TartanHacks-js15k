@@ -25,7 +25,7 @@ export function blueprint_enemy(game: Game, hp: number = 2) {
     let enemy_data: EnemyData = {Entity: 0, Health: hp, MaxHealth: hp, HealthBar: 0, LeftLeg: 0, RightLeg: 0, VelX: 0, VelZ: 0};
     return [
         transform(),
-        collide(true, Layer.Enemy, Layer.Bullet | Layer.Player | Layer.Terrain | Layer.Ground, [1.0, 4.0, 0.8]),
+        collide(true, Layer.Enemy, Layer.Bullet | Layer.Player | Layer.Terrain | Layer.Ground | Layer.Enemy, [1.0, 4.0, 0.8]),
         rigid_body(RigidKind.Kinematic),
         move(3, 0),
         callback((_game, entity) => {

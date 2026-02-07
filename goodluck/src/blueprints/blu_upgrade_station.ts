@@ -13,6 +13,7 @@ export const enum UpgradeType {
     DamageUp,
     FireRateUp,
     Continue,
+    Grenade,
 }
 
 export function blueprint_upgrade_station(game: Game, type: UpgradeType) {
@@ -72,6 +73,11 @@ function get_model_child(game: Game, type: UpgradeType) {
                 transform([0, 1.2, 0], [0, 0, 0, 1], [0.4, 0.4, 0.4]),
                 render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.9, 0.9, 0.9, 1], 32, 0.6),
             ];
+        case UpgradeType.Grenade:
+            return [
+                transform([0, 1.2, 0], [0, 0, 0, 1], [0.4, 0.4, 0.4]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.3, 0.6, 0.2, 1], 8, 0.6),
+            ];
     }
 }
 
@@ -89,5 +95,7 @@ function get_glow_color(type: UpgradeType): [number, number, number, number] {
             return [0.2, 0.9, 0.3, 0.5];
         case UpgradeType.Continue:
             return [0.9, 0.9, 0.9, 0.5];
+        case UpgradeType.Grenade:
+            return [0.3, 0.6, 0.2, 0.5];
     }
 }

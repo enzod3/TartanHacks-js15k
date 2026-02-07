@@ -186,4 +186,5 @@ export const enum WeaponType {
     Infantry,
     Shotgun,
     Thrower,
+    Grenade,
 }

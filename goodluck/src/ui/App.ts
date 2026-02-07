@@ -11,6 +11,7 @@ const UPGRADE_DESCS: Record<string, string> = {
     "Dmg+": "Increase weapon damage",
     "Fire Rate+": "Shoot faster",
     "Continue": "Press on without upgrades",
+    "Grenade": "Explosive that bursts into pellets",
 };
 
 function format_time(ms: number): string {

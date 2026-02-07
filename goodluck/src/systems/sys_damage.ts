@@ -17,6 +17,25 @@ let contact_timer = 0;
 export function sys_damage(game: Game, delta: number) {
     contact_timer -= delta;
 
+    // Fall-off-map death check.
+    for (let i = 0; i < game.World.Signature.length; i++) {
+        if (
+            (game.World.Signature[i] & (Has.ControlPlayer | Has.Transform)) ===
+            (Has.ControlPlayer | Has.Transform)
+        ) {
+            let py = game.World.Transform[i].Translation[1];
+            if (py < -20) {
+                game.PlayerHealth = 0;
+                game.WaveState = WaveState.Dead;
+                game.EndTime = Date.now();
+                game.Paused = true;
+                document.exitPointerLock();
+                return;
+            }
+            break;
+        }
+    }
+
     // Handle rock hitting terrain/ground — destroy it.
     if (game.RockEntity >= 0 && game.World.Signature[game.RockEntity] !== Has.None) {
         let rock_collide = game.World.Collide[game.RockEntity];

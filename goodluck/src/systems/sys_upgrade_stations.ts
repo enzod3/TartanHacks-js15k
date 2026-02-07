@@ -67,5 +67,9 @@ export function apply_upgrade(game: Game, type: UpgradeType) {
         case UpgradeType.Continue:
             game.UpgradesPicked.push("Continue");
             break;
+        case UpgradeType.Grenade:
+            game.Weapon = WeaponType.Grenade;
+            game.UpgradesPicked.push("Grenade");
+            break;
     }
 }
