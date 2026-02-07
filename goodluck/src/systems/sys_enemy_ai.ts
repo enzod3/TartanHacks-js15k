@@ -4,8 +4,9 @@ import {Enemies} from "../blueprints/blu_enemy.js";
 import {Game, Layer} from "../game.js";
 import {Has} from "../world.js";
 
-const SPEED = 4.5;
-const ACCEL = 8;
+// Base constants
+const BASE_SPEED = 4.5;
+const BASE_ACCEL = 8;
 const GS = 80;
 const GO = -40;
 
@@ -21,7 +22,6 @@ function build_grid(game: Game) {
         if ((game.World.Signature[i] & (Has.Transform | Has.Collide)) === (Has.Transform | Has.Collide)) {
             let c = game.World.Collide[i];
             if (!(c.Layers & Layer.Terrain)) continue;
-            // No manual padding — grid discretization (floor/ceil) gives ~0.5 cell natural buffer.
             let x0 = Math.max(0, Math.floor(c.Min[0] - GO));
             let x1 = Math.min(GS, Math.ceil(c.Max[0] - GO));
             let z0 = Math.max(0, Math.floor(c.Min[2] - GO));
@@ -117,6 +117,12 @@ export function sys_enemy_ai(game: Game, delta: number) {
     build_grid(game);
     bfs(px, pz);
 
+    // --- Dynamic Difficulty Scaling ---
+    // Increase speed by 0.5 per wave
+    let current_speed = BASE_SPEED + (game.Wave * 0.5);
+    // Increase acceleration so they remain agile at high speeds
+    let current_accel = BASE_ACCEL + (game.Wave * 0.3);
+
     for (let enemy of Enemies) {
         if (game.World.Signature[enemy.Entity] === Has.None) continue;
 
@@ -136,18 +142,21 @@ export function sys_enemy_ai(game: Game, delta: number) {
         if (dl > 0.01) { dx /= dl; dz /= dl; }
 
         // Steer velocity toward desired.
-        let steer = ACCEL * delta;
-        let dvx = dx * SPEED - enemy.VelX, dvz = dz * SPEED - enemy.VelZ;
+        let steer = current_accel * delta;
+        let dvx = dx * current_speed - enemy.VelX, dvz = dz * current_speed - enemy.VelZ;
         let dvl = Math.sqrt(dvx * dvx + dvz * dvz);
         if (dvl > steer) { dvx = (dvx / dvl) * steer; dvz = (dvz / dvl) * steer; }
         enemy.VelX += dvx;
         enemy.VelZ += dvz;
 
-        // Clamp to max speed.
+        // Clamp to current max speed.
         let vl = Math.sqrt(enemy.VelX * enemy.VelX + enemy.VelZ * enemy.VelZ);
-        if (vl > SPEED) { enemy.VelX = (enemy.VelX / vl) * SPEED; enemy.VelZ = (enemy.VelZ / vl) * SPEED; }
+        if (vl > current_speed) { 
+            enemy.VelX = (enemy.VelX / vl) * current_speed; 
+            enemy.VelZ = (enemy.VelZ / vl) * current_speed; 
+        }
 
-        // Collision push-out (all terrain hits).
+        // Collision push-out.
         let collide = game.World.Collide[enemy.Entity];
         if (collide) {
             for (let collision of collide.Collisions) {
@@ -180,11 +189,10 @@ export function sys_enemy_ai(game: Game, delta: number) {
             transform.Rotation[3] = Math.cos(facing / 2);
         }
 
-
         // Animate legs.
         if (enemy.LeftLeg && enemy.RightLeg) {
             let speed = Math.sqrt(enemy.VelX * enemy.VelX + enemy.VelZ * enemy.VelZ);
-            let swing = Math.sin(game.Now / 1000 * 10) * 0.3 * Math.min(1, speed / SPEED);
+            let swing = Math.sin(game.Now / 1000 * 10) * 0.3 * Math.min(1, speed / current_speed);
             let left_leg = game.World.Transform[enemy.LeftLeg];
             let right_leg = game.World.Transform[enemy.RightLeg];
             left_leg.Rotation[0] = Math.sin(swing / 2);

@@ -8,7 +8,7 @@ import {set_position} from "../components/com_transform.js";
 import {Game, WaveState, WeaponType} from "../game.js";
 import {set_evac_entity} from "./sys_upgrade_stations.js";
 
-const SPAWN_INTERVAL = 1.5;
+const SPAWN_INTERVAL = 0.7;
 const MAP_RADIUS = 37;
 
 let time_since_spawn = 0;
@@ -39,7 +39,7 @@ export function sys_enemy_spawn(game: Game, delta: number) {
 
                 let x = Math.cos(angle) * MAP_RADIUS;
                 let z = Math.sin(angle) * MAP_RADIUS;
-                let hp = game.Wave;
+                let hp = game.Wave*2;
                 instantiate(game, [
                     ...blueprint_enemy(game, hp),
                     set_position(x, 0.5, z),
@@ -112,7 +112,7 @@ function get_upgrade_choices(game: Game): UpgradeType[] {
 
 export function start_wave(game: Game) {
     game.Wave++;
-    game.WaveEnemiesTotal = 3 + game.Wave * 2;
+    game.WaveEnemiesTotal = game.Wave * 5;
     game.WaveEnemiesSpawned = 0;
     game.WaveState = WaveState.Spawning;
     time_since_spawn = 0;
