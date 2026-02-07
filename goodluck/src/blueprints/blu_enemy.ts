@@ -15,9 +15,6 @@ export interface EnemyData {
     HealthBar: Entity;
     LeftLeg: Entity;
     RightLeg: Entity;
-    WaypointX: number;
-    WaypointZ: number;
-    WaypointActive: boolean;
     VelX: number;
     VelZ: number;
 }
@@ -25,7 +22,7 @@ export interface EnemyData {
 export let Enemies: EnemyData[] = [];
 
 export function blueprint_enemy(game: Game, hp: number = 2) {
-    let enemy_data: EnemyData = {Entity: 0, Health: hp, MaxHealth: hp, HealthBar: 0, LeftLeg: 0, RightLeg: 0, WaypointX: 0, WaypointZ: 0, WaypointActive: false, VelX: 0, VelZ: 0};
+    let enemy_data: EnemyData = {Entity: 0, Health: hp, MaxHealth: hp, HealthBar: 0, LeftLeg: 0, RightLeg: 0, VelX: 0, VelZ: 0};
     return [
         transform(),
         collide(true, Layer.Enemy, Layer.Bullet | Layer.Player | Layer.Terrain | Layer.Ground, [0.9, 2.0, 0.6]),
