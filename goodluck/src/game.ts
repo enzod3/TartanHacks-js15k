@@ -35,7 +35,7 @@ import {sys_transform} from "./systems/sys_transform.js";
 import {sys_ui} from "./systems/sys_ui.js";
 import {sys_enemy_ai} from "./systems/sys_enemy_ai.js";
 import {sys_enemy_spawn} from "./systems/sys_enemy_spawn.js";
-import {sys_debug_lines} from "./systems/sys_debug_lines.js";
+
 import {World} from "./world.js";
 import {sys_boundary} from "./systems/sys_boundary.js";
 import {sys_powerup} from "./systems/sys_powerup.js";

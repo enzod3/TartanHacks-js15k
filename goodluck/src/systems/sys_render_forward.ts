@@ -1,37 +1,13 @@
-/**
- * # sys_render_forward
- *
- * Render the world using the forward rendering pipeline.
- *
- * The pipeline supports multiple [cameras](com_camera.html), which can render
- * directly to the screen or to a texture.
- *
- * Transparent objects are rendered after opaque objects, sorted back to front.
- *
- * For materials which support lighting, the lighting details must be first
- * collected by [`sys_light`](sys_light.html).
- *
- * For materials which support shadows, the shadow map must be first rendered by
- * [`sys_render_depth`](sys_render_depth.html).
- */
-
-import {TargetKind} from "../../lib/framebuffer.js";
 import {mat4_distance_squared_from_point} from "../../lib/mat4.js";
 import {Material} from "../../lib/material.js";
 import {
-    GL_ARRAY_BUFFER,
     GL_BLEND,
-    GL_FLOAT,
     GL_FRAMEBUFFER,
     GL_TEXTURE0,
-    GL_TEXTURE1,
-    GL_TEXTURE2,
-    GL_TEXTURE3,
     GL_TEXTURE_2D,
     GL_UNSIGNED_SHORT,
 } from "../../lib/webgl.js";
-import {Entity, first_having} from "../../lib/world.js";
-import {Attribute} from "../../materials/layout.js";
+import {Entity} from "../../lib/world.js";
 import {CameraEye, CameraKind} from "../components/com_camera.js";
 import {Render, RenderKind, RenderPhase} from "../components/com_render.js";
 import {Game} from "../game.js";
@@ -49,15 +25,6 @@ export function sys_render_forward(game: Game, delta: number) {
                 game.Gl.clearColor(...camera.ClearColor);
                 game.Gl.clear(camera.ClearMask);
                 render_all(game, camera);
-                break;
-            case CameraKind.Target:
-                if (camera.Target.Kind === TargetKind.Forward) {
-                    game.Gl.bindFramebuffer(GL_FRAMEBUFFER, camera.Target.Framebuffer);
-                    game.Gl.viewport(0, 0, camera.Target.Width, camera.Target.Height);
-                    game.Gl.clearColor(...camera.ClearColor);
-                    game.Gl.clear(camera.ClearMask);
-                    render_all(game, camera, camera.Target.ColorTexture);
-                }
                 break;
         }
     }
@@ -131,10 +98,6 @@ export function render_all(game: Game, eye: CameraEye, current_target?: WebGLTex
 
 function use_material(game: Game, render: Render, eye: CameraEye) {
     switch (render.Kind) {
-        case RenderKind.ColoredUnlit:
-            game.Gl.useProgram(render.Material.Program);
-            game.Gl.uniformMatrix4fv(render.Material.Locations.Pv, false, eye.Pv);
-            break;
         case RenderKind.ColoredShaded:
             game.Gl.useProgram(render.Material.Program);
             game.Gl.uniformMatrix4fv(render.Material.Locations.Pv, false, eye.Pv);
@@ -142,54 +105,12 @@ function use_material(game: Game, render: Render, eye: CameraEye) {
             game.Gl.uniform4fv(render.Material.Locations.LightPositions, game.LightPositions);
             game.Gl.uniform4fv(render.Material.Locations.LightDetails, game.LightDetails);
             break;
-        case RenderKind.ColoredShadows:
-            game.Gl.useProgram(render.Material.Program);
-            game.Gl.uniformMatrix4fv(render.Material.Locations.Pv, false, eye.Pv);
-            game.Gl.uniform3fv(render.Material.Locations.Eye, eye.Position);
-            game.Gl.uniform4fv(render.Material.Locations.LightPositions, game.LightPositions);
-            game.Gl.uniform4fv(render.Material.Locations.LightDetails, game.LightDetails);
-
-            game.Gl.activeTexture(GL_TEXTURE0);
-            game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Sun.DepthTexture);
-            game.Gl.uniform1i(render.Material.Locations.ShadowMap, 0);
-
-            // Only one shadow source is supported.
-            let light_entity = first_having(game.World, Has.Camera | Has.Light);
-            if (light_entity) {
-                let light_camera = game.World.Camera[light_entity];
-                if (light_camera.Kind === CameraKind.Xr) {
-                    throw new Error("XR cameras cannot be shadow sources.");
-                }
-                game.Gl.uniformMatrix4fv(
-                    render.Material.Locations.ShadowSpace,
-                    false,
-                    light_camera.Pv,
-                );
-            }
-            break;
-        case RenderKind.TexturedUnlit:
-            game.Gl.useProgram(render.Material.Program);
-            game.Gl.uniformMatrix4fv(render.Material.Locations.Pv, false, eye.Pv);
-            break;
         case RenderKind.TexturedShaded:
             game.Gl.useProgram(render.Material.Program);
             game.Gl.uniformMatrix4fv(render.Material.Locations.Pv, false, eye.Pv);
             game.Gl.uniform3fv(render.Material.Locations.Eye, eye.Position);
             game.Gl.uniform4fv(render.Material.Locations.LightPositions, game.LightPositions);
             game.Gl.uniform4fv(render.Material.Locations.LightDetails, game.LightDetails);
-            break;
-        case RenderKind.MappedShaded:
-            game.Gl.useProgram(render.Material.Program);
-            game.Gl.uniformMatrix4fv(render.Material.Locations.Pv, false, eye.Pv);
-            game.Gl.uniform3fv(render.Material.Locations.Eye, eye.Position);
-            game.Gl.uniform4fv(render.Material.Locations.LightPositions, game.LightPositions);
-            game.Gl.uniform4fv(render.Material.Locations.LightDetails, game.LightDetails);
-            break;
-        case RenderKind.Vertices:
-        case RenderKind.ParticlesColored:
-        case RenderKind.ParticlesTextured:
-            game.Gl.useProgram(render.Material.Program);
-            game.Gl.uniformMatrix4fv(render.Material.Locations.Pv, false, eye.Pv);
             break;
     }
 }
@@ -199,19 +120,6 @@ function draw_entity(game: Game, entity: Entity, current_target?: WebGLTexture) 
     let render = game.World.Render[entity];
 
     switch (render.Kind) {
-        case RenderKind.ColoredUnlit:
-            game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-            game.Gl.uniform4fv(render.Material.Locations.Color, render.Color);
-            game.Gl.bindVertexArray(render.Mesh.Vao);
-            game.Gl.drawElements(
-                render.Material.Mode,
-                render.Mesh.IndexCount,
-                GL_UNSIGNED_SHORT,
-                0,
-            );
-            game.Gl.bindVertexArray(null);
-
-            break;
         case RenderKind.ColoredShaded:
             game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
             game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
@@ -227,48 +135,8 @@ function draw_entity(game: Game, entity: Entity, current_target?: WebGLTexture) 
             );
             game.Gl.bindVertexArray(null);
             break;
-        case RenderKind.ColoredShadows:
-            game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-            game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
-            game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
-            game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
-            game.Gl.uniform4fv(render.Material.Locations.EmissiveColor, render.EmissiveColor);
-            game.Gl.bindVertexArray(render.Mesh.Vao);
-            game.Gl.drawElements(
-                render.Material.Mode,
-                render.Mesh.IndexCount,
-                GL_UNSIGNED_SHORT,
-                0,
-            );
-            game.Gl.bindVertexArray(null);
-            break;
-        case RenderKind.TexturedUnlit:
-            if (render.Texture === current_target) {
-                // Prevent feedback loop between the active render target
-                // and the texture being rendered.
-                break;
-            }
-
-            game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-            game.Gl.uniform4fv(render.Material.Locations.Color, render.Color);
-
-            game.Gl.activeTexture(GL_TEXTURE0);
-            game.Gl.bindTexture(GL_TEXTURE_2D, render.Texture);
-            game.Gl.uniform1i(render.Material.Locations.TextureMap, 0);
-
-            game.Gl.bindVertexArray(render.Mesh.Vao);
-            game.Gl.drawElements(
-                render.Material.Mode,
-                render.Mesh.IndexCount,
-                GL_UNSIGNED_SHORT,
-                0,
-            );
-            game.Gl.bindVertexArray(null);
-            break;
         case RenderKind.TexturedShaded:
             if (render.Texture === current_target) {
-                // Prevent feedback loop between the active render target
-                // and the texture being rendered.
                 break;
             }
 
@@ -290,48 +158,6 @@ function draw_entity(game: Game, entity: Entity, current_target?: WebGLTexture) 
                 0,
             );
             game.Gl.bindVertexArray(null);
-            break;
-        case RenderKind.MappedShaded:
-            if (render.DiffuseMap === current_target) {
-                // Prevent feedback loop between the active render target
-                // and the texture being rendered.
-                break;
-            }
-            game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-            game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
-
-            game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
-
-            game.Gl.activeTexture(GL_TEXTURE1);
-            game.Gl.bindTexture(GL_TEXTURE_2D, render.DiffuseMap);
-            game.Gl.uniform1i(render.Material.Locations.DiffuseMap, 1);
-
-            game.Gl.activeTexture(GL_TEXTURE2);
-            game.Gl.bindTexture(GL_TEXTURE_2D, render.NormalMap);
-            game.Gl.uniform1i(render.Material.Locations.NormalMap, 2);
-
-            game.Gl.activeTexture(GL_TEXTURE3);
-            game.Gl.bindTexture(GL_TEXTURE_2D, render.RoughnessMap);
-            game.Gl.uniform1i(render.Material.Locations.RoughnessMap, 3);
-
-            game.Gl.bindVertexArray(render.Mesh.Vao);
-            game.Gl.drawElements(
-                render.Material.Mode,
-                render.Mesh.IndexCount,
-                GL_UNSIGNED_SHORT,
-                0,
-            );
-            game.Gl.bindVertexArray(null);
-            break;
-        case RenderKind.Vertices:
-            game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-            game.Gl.uniform4fv(render.Material.Locations.Color, render.Color);
-            game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.VertexBuffer);
-            game.Gl.enableVertexAttribArray(Attribute.Position);
-            game.Gl.vertexAttribPointer(Attribute.Position, 3, GL_FLOAT, false, 0, 0);
-            game.Gl.drawArrays(render.Material.Mode, 0, render.IndexCount);
-            break;
-        case RenderKind.ParticlesColored:
             break;
     }
 }

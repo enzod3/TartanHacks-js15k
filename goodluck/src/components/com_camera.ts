@@ -7,7 +7,7 @@
  * In WebGL, similar to OpenGL, cameras see backwards!
  */
 
-import {RenderTarget} from "../../lib/framebuffer.js";
+import type {RenderTarget} from "../../lib/framebuffer.js";
 import {mat4_create} from "../../lib/mat4.js";
 import {Mat4, Vec2, Vec3, Vec4} from "../../lib/math.js";
 import {Projection} from "../../lib/projection.js";

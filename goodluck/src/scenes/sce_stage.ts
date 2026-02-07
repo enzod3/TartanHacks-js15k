@@ -14,6 +14,11 @@ import {Game, Layer, WaveState} from "../game.js";
 import {Has} from "../world.js";
 import {World} from "../world.js";
 
+function static_cube(game: Game, tex: WebGLTexture) {
+    return [collide(false, Layer.Terrain, Layer.None), rigid_body(RigidKind.Static),
+            render_textured_shaded(game.MaterialTexturedShaded, game.MeshCube, tex)];
+}
+
 export function scene_stage(game: Game) {
     game.World = new World();
     game.ViewportResized = true;
@@ -106,9 +111,7 @@ export function scene_stage(game: Game) {
             let oz = (Math.random() - 0.5) * 2.5;
             boulders.push([
                 transform([ox, sy / 2, oz], [0, 0, 0, 1], [sx, sy, sz]),
-                collide(false, Layer.Terrain, Layer.None),
-                rigid_body(RigidKind.Static),
-                render_textured_shaded(game.MaterialTexturedShaded, game.MeshCube, game.TexRock),
+                ...static_cube(game, game.TexRock),
             ]);
         }
         instantiate(game, [
@@ -131,9 +134,7 @@ export function scene_stage(game: Game) {
             set_position(x, sy / 2, z),
             set_rotation(rotx, roty, rotz),
             set_scale(sx, sy, sz),
-            collide(false, Layer.Terrain, Layer.None),
-            rigid_body(RigidKind.Static),
-            render_textured_shaded(game.MaterialTexturedShaded, game.MeshCube, game.TexWood),
+            ...static_cube(game, game.TexWood),
         ]);
     }
 
@@ -146,67 +147,49 @@ export function scene_stage(game: Game) {
             // Hull bottom.
             [
                 transform([0, 0.4, 0], [0, 0, 0, 1], [10, 0.5, 4]),
-                collide(false, Layer.Terrain, Layer.None),
-                rigid_body(RigidKind.Static),
-                render_textured_shaded(game.MaterialTexturedShaded, game.MeshCube, game.TexWood),
+                ...static_cube(game, game.TexWood),
             ],
             // Left wall.
             [
                 transform([-4.5, 1.5, 0], [0, 0, 0, 1], [0.5, 2.5, 4]),
-                collide(false, Layer.Terrain, Layer.None),
-                rigid_body(RigidKind.Static),
-                render_textured_shaded(game.MaterialTexturedShaded, game.MeshCube, game.TexWood),
+                ...static_cube(game, game.TexWood),
             ],
             // Right wall.
             [
                 transform([4.5, 1.5, 0], [0, 0, 0, 1], [0.5, 2.5, 4]),
-                collide(false, Layer.Terrain, Layer.None),
-                rigid_body(RigidKind.Static),
-                render_textured_shaded(game.MaterialTexturedShaded, game.MeshCube, game.TexWood),
+                ...static_cube(game, game.TexWood),
             ],
             // Back wall.
             [
                 transform([0, 2.0, -1.8], [0, 0, 0, 1], [10, 3.5, 0.4]),
-                collide(false, Layer.Terrain, Layer.None),
-                rigid_body(RigidKind.Static),
-                render_textured_shaded(game.MaterialTexturedShaded, game.MeshCube, game.TexWood),
+                ...static_cube(game, game.TexWood),
             ],
             // Broken front (shorter).
             [
                 transform([2.5, 1.0, 1.8], [0, 0, 0, 1], [5, 1.5, 0.4]),
-                collide(false, Layer.Terrain, Layer.None),
-                rigid_body(RigidKind.Static),
-                render_textured_shaded(game.MaterialTexturedShaded, game.MeshCube, game.TexWood),
+                ...static_cube(game, game.TexWood),
             ],
             // Mast stump.
             [
                 transform([0, 3.5, 0], [0, 0, 0, 1], [0.4, 6, 0.4]),
-                collide(false, Layer.Terrain, Layer.None),
-                rigid_body(RigidKind.Static),
-                render_textured_shaded(game.MaterialTexturedShaded, game.MeshCube, game.TexWood),
+                ...static_cube(game, game.TexWood),
             ],
             // Broken crossbeam.
             [
                 transform([0.5, 5.0, 0], [0, 0, 0, 1], [3, 0.3, 0.3]),
                 set_rotation(0, 0, 15),
-                collide(false, Layer.Terrain, Layer.None),
-                rigid_body(RigidKind.Static),
-                render_textured_shaded(game.MaterialTexturedShaded, game.MeshCube, game.TexWood),
+                ...static_cube(game, game.TexWood),
             ],
             // Fallen plank debris.
             [
                 transform([3, 0.2, 2.5], [0, 0, 0, 1], [3, 0.2, 0.6]),
                 set_rotation(5, 25, 0),
-                collide(false, Layer.Terrain, Layer.None),
-                rigid_body(RigidKind.Static),
-                render_textured_shaded(game.MaterialTexturedShaded, game.MeshCube, game.TexWood),
+                ...static_cube(game, game.TexWood),
             ],
             [
                 transform([-3, 0.15, 3], [0, 0, 0, 1], [2.5, 0.2, 0.5]),
                 set_rotation(-3, -40, 0),
-                collide(false, Layer.Terrain, Layer.None),
-                rigid_body(RigidKind.Static),
-                render_textured_shaded(game.MaterialTexturedShaded, game.MeshCube, game.TexWood),
+                ...static_cube(game, game.TexWood),
             ],
         ),
     ]);
