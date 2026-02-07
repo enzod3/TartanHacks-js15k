@@ -1,10 +1,14 @@
 import {html} from "../../lib/html.js";
 import {Enemies} from "../blueprints/blu_enemy.js";
 import {Action} from "../actions.js";
-import {Game, WaveState, WeaponType} from "../game.js";
+import {Game, WaveState} from "../game.js";
 import {Fullscreen} from "./Fullscreen.js";
 
 export function App(game: Game) {
+    if (game.WaveState === WaveState.Won) {
+        return WonOverlay(game);
+    }
+
     let hp_pct = Math.max(0, (game.PlayerHealth / game.PlayerMaxHealth) * 100);
     let bar_color = hp_pct > 50 ? "#4c4" : hp_pct > 25 ? "#cc4" : "#c44";
     let remaining = Enemies.length + (game.WaveEnemiesTotal - game.WaveEnemiesSpawned);
@@ -29,7 +33,8 @@ export function App(game: Game) {
             font-size:18px;
             font-family:Arial,sans-serif;
             text-shadow:0 0 6px rgba(0,0,0,0.9);
-        ">Wave ${game.Wave} - ${remaining} remaining</div>
+            text-align:center;
+        ">${get_top_html(game, remaining)}</div>
         <div style="
             position:fixed;
             bottom:20px;left:50%;
@@ -67,15 +72,27 @@ export function App(game: Game) {
             font-family:Arial,sans-serif;
             text-shadow:0 0 8px rgba(0,200,255,0.8);
         ">3rd Person: ${Math.ceil(game.ThirdPersonTimer)}s</div>` : ""}
-        ${game.WaveState === WaveState.Upgrading ? UpgradeOverlay(game) : ""}
     </div>`;
 }
 
-function UpgradeOverlay(game: Game) {
+function get_top_html(game: Game, remaining: number): string {
+    if (game.WaveState === WaveState.Upgrading) {
+        let labels = game.UpgradeLabels;
+        let choices = labels.join("  |  ");
+        return `Choose Your Upgrade<br><span style="font-size:14px;color:#ff0">${choices}</span>`;
+    }
+    if (game.WaveState === WaveState.Evac) {
+        return "Get to the Evac Point!";
+    }
+    return `Wave ${game.Wave} - ${remaining} remaining`;
+}
+
+function WonOverlay(game: Game) {
+    let upgrades = game.UpgradesPicked.length > 0 ? game.UpgradesPicked.join(", ") : "None";
     return html`<div style="
         position:fixed;
         top:0;left:0;right:0;bottom:0;
-        background:rgba(0,0,0,0.7);
+        background:rgba(0,0,0,0.85);
         display:flex;
         flex-direction:column;
         align-items:center;
@@ -83,34 +100,29 @@ function UpgradeOverlay(game: Game) {
         font-family:Arial,sans-serif;
         z-index:100;
     ">
-        <div style="color:#fff;font-size:28px;margin-bottom:30px;text-shadow:0 0 8px rgba(0,0,0,0.9);">
-            Wave ${game.Wave} Complete!
+        <div style="color:#4f4;font-size:36px;margin-bottom:20px;text-shadow:0 0 12px rgba(0,255,0,0.6);">
+            You Escaped!
         </div>
-        <div style="display:flex;gap:20px;">
-            ${game.Weapon !== WeaponType.Shotgun ? html`<button
-                onclick="$(${Action.UpgradeShotgun})"
-                style="
-                    padding:20px 30px;
-                    background:#c33;
-                    color:#fff;
-                    border:none;
-                    border-radius:8px;
-                    font-size:20px;
-                    cursor:pointer;
-                "
-            >Shotgunner</button>` : ""}
-            <button
-                onclick="$(${Action.UpgradeInfantryDamage})"
-                style="
-                    padding:20px 30px;
-                    background:#36c;
-                    color:#fff;
-                    border:none;
-                    border-radius:8px;
-                    font-size:20px;
-                    cursor:pointer;
-                "
-            >Dmg + (${game.BulletDamage} &rarr; ${game.BulletDamage + 1})</button>
+        <div style="color:#fff;font-size:20px;margin-bottom:10px;">
+            Waves Survived: ${game.MaxWaves}
         </div>
+        <div style="color:#fff;font-size:20px;margin-bottom:10px;">
+            Total Kills: ${game.TotalKills}
+        </div>
+        <div style="color:#ccc;font-size:16px;margin-bottom:30px;">
+            Upgrades: ${upgrades}
+        </div>
+        <button
+            onclick="$(${Action.PlayAgain})"
+            style="
+                padding:15px 40px;
+                background:#4a4;
+                color:#fff;
+                border:none;
+                border-radius:8px;
+                font-size:22px;
+                cursor:pointer;
+            "
+        >Play Again</button>
     </div>`;
 }

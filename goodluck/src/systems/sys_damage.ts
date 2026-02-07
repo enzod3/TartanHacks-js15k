@@ -5,7 +5,7 @@ import {Enemies} from "../blueprints/blu_enemy.js";
 import {destroy_all} from "../components/com_children.js";
 import {lifespan} from "../components/com_lifespan.js";
 import {render_colored_shaded} from "../components/com_render.js";
-import {RigidKind, rigid_body} from "../components/com_rigid_body.js";
+import {rigid_body, RigidKind} from "../components/com_rigid_body.js";
 import {set_position, set_scale, transform} from "../components/com_transform.js";
 import {Game, Layer, WeaponType} from "../game.js";
 import {play_hit, play_hurt, play_kill} from "../sound.js";
@@ -16,6 +16,23 @@ let contact_timer = 0;
 
 export function sys_damage(game: Game, delta: number) {
     contact_timer -= delta;
+
+    // Handle rock hitting terrain/ground — destroy it.
+    if (game.RockEntity >= 0 && game.World.Signature[game.RockEntity] !== Has.None) {
+        let rock_collide = game.World.Collide[game.RockEntity];
+        if (rock_collide) {
+            for (let collision of rock_collide.Collisions) {
+                let other = collision.Other;
+                if (!(game.World.Signature[other] & Has.Collide)) continue;
+                let other_collide = game.World.Collide[other];
+                if (other_collide.Layers & (Layer.Terrain | Layer.Ground)) {
+                    destroy_all(game.World, game.RockEntity);
+                    game.RockEntity = -1;
+                    break;
+                }
+            }
+        }
+    }
 
     // Check bullet-enemy collisions.
     for (let i = Enemies.length - 1; i >= 0; i--) {
@@ -32,9 +49,14 @@ export function sys_damage(game: Game, delta: number) {
             let other_collide = game.World.Collide[other];
 
             if (other_collide.Layers & Layer.Bullet) {
-                destroy_all(game.World, other);
-                let dmg = game.Weapon === WeaponType.Shotgun ? game.ShotgunPelletDamage : game.BulletDamage;
-                enemy.Health -= dmg;
+                // Check if this is the rock — it pierces and instant-kills.
+                if (other === game.RockEntity) {
+                    enemy.Health = 0;
+                } else {
+                    destroy_all(game.World, other);
+                    let dmg = game.Weapon === WeaponType.Shotgun ? game.ShotgunPelletDamage : game.BulletDamage;
+                    enemy.Health -= dmg;
+                }
 
                 let ratio = Math.max(0, enemy.Health / enemy.MaxHealth);
                 let bar_transform = game.World.Transform[enemy.HealthBar];
@@ -43,6 +65,7 @@ export function sys_damage(game: Game, delta: number) {
 
                 if (enemy.Health <= 0) {
                     play_kill();
+                    game.TotalKills++;
                     spawn_debris(game, enemy.Entity);
                     destroy_all(game.World, enemy.Entity);
                     Enemies.splice(i, 1);

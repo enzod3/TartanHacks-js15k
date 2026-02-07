@@ -2,6 +2,7 @@ import {mat4_get_forward, mat4_get_translation} from "../../lib/mat4.js";
 import {Vec3} from "../../lib/math.js";
 import {instantiate} from "../../lib/game.js";
 import {blueprint_bullet} from "../blueprints/blu_bullet.js";
+import {blueprint_rock} from "../blueprints/blu_rock.js";
 import {CameraChild} from "../blueprints/blu_camera_follow.js";
 import {CameraAnchor} from "../blueprints/blu_player.js";
 import {set_position, set_scale} from "../components/com_transform.js";
@@ -11,6 +12,9 @@ import {play_gunshot} from "../sound.js";
 const BULLET_SPEED = 80;
 const INFANTRY_COOLDOWN = 0.15;
 const SHOTGUN_COOLDOWN = 0.6;
+const ROCK_SPEED = 20;
+const ROCK_ARC = 5;
+const THROWER_COOLDOWN = 1.5;
 const SHOTGUN_SPREAD = Math.PI / 20; // ~13 degrees half-spread
 const SHOTGUN_JITTER = 0.12;
 // Diamond/cross: 2-4-4-2 rows top to bottom.
@@ -29,7 +33,7 @@ const CROSS_PATTERN: [number, number][] = [
 export function sys_control_shoot(game: Game, delta: number) {
     game.ShootCooldown -= delta;
     let wants_to_shoot = false;
-    
+
     // 2. If the mouse is doing anything, it becomes 'true'
     if (game.InputState["Mouse0"] || game.InputDelta["Mouse0"] === 1) {
         wants_to_shoot = true;
@@ -38,20 +42,13 @@ export function sys_control_shoot(game: Game, delta: number) {
     // 3. If a touch tap was detected, it also becomes 'true'
     if (game.InputState["TapShoot"] === 1) {
         wants_to_shoot = true;
-        game.InputState["TapShoot"] = 0; 
+        game.InputState["TapShoot"] = 0;
     }
 
     // 4. As long as ONE of those was true, we pass this gate
     if (!wants_to_shoot || game.ShootCooldown > 0) {
         return;
     }
-    // if (game.InputDelta["Mouse0"] !== 1 && !game.InputState["Mouse0"]) {
-    //     return;
-    // }
-    //
-    // if (game.ShootCooldown > 0) {
-    //     return;
-    // }
 
     let forward: Vec3 = [0, 0, 0];
     let position: Vec3 = [0, 0, 0];
@@ -63,9 +60,9 @@ export function sys_control_shoot(game: Game, delta: number) {
         forward[1] = -forward[1];
         forward[2] = -forward[2];
         mat4_get_translation(position, cam_world);
-        position[0] += forward[0] * 1.5;
-        position[1] += forward[1] * 1.5 - 0.3;
-        position[2] += forward[2] * 1.5;
+        position[0] += forward[0] * 0.5;
+        position[1] += forward[1] * 0.5 - 0.3;
+        position[2] += forward[2] * 0.5;
     } else {
         let player_parent = game.World.Transform[CameraAnchor].Parent!;
         let player_world = game.World.Transform[player_parent].World;
@@ -82,9 +79,23 @@ export function sys_control_shoot(game: Game, delta: number) {
         position[2] += forward[2] * 1.0;
     }
 
-    if (game.Weapon === WeaponType.Shotgun) {
+    if (game.Weapon === WeaponType.Thrower) {
+        play_gunshot(0.4);
+        game.ShootCooldown = THROWER_COOLDOWN * game.FireRateMultiplier;
+
+        let rock = instantiate(game, blueprint_rock(game));
+        set_position(position[0], position[1], position[2])(game, rock);
+        set_scale(0.4, 0.4, 0.4)(game, rock);
+
+        let rb = game.World.RigidBody[rock];
+        rb.VelocityLinear[0] = forward[0] * ROCK_SPEED;
+        rb.VelocityLinear[1] = forward[1] * ROCK_SPEED + ROCK_ARC;
+        rb.VelocityLinear[2] = forward[2] * ROCK_SPEED;
+
+        game.RockEntity = rock;
+    } else if (game.Weapon === WeaponType.Shotgun) {
         play_gunshot(0.6);
-        game.ShootCooldown = SHOTGUN_COOLDOWN;
+        game.ShootCooldown = SHOTGUN_COOLDOWN * game.FireRateMultiplier;
 
         // Right and up vectors for offsetting pellets in a cone.
         let right: Vec3 = [forward[2], 0, -forward[0]];
@@ -124,7 +135,7 @@ export function sys_control_shoot(game: Game, delta: number) {
         }
     } else {
         play_gunshot(1.0);
-        game.ShootCooldown = INFANTRY_COOLDOWN;
+        game.ShootCooldown = INFANTRY_COOLDOWN * game.FireRateMultiplier;
 
         let bullet = instantiate(game, blueprint_bullet(game));
         set_position(position[0], position[1], position[2])(game, bullet);

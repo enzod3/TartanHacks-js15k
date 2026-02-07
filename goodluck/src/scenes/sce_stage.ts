@@ -25,6 +25,12 @@ export function scene_stage(game: Game) {
     game.WaveEnemiesSpawned = 0;
     game.Paused = false;
     game.ThirdPersonTimer = 0;
+    game.TotalKills = 0;
+    game.UpgradesPicked = [];
+    game.UpgradeStations = [];
+    game.RockEntity = -1;
+    game.FireRateMultiplier = 1;
+    game.UpgradeLabels = [];
 
     // Spawn first powerup.
     let pa = Math.random() * Math.PI * 2;

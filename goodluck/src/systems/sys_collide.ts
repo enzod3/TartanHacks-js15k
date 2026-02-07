@@ -39,6 +39,9 @@ export function sys_collide(game: Game, delta: number) {
             if (collider.New) {
                 collider.New = false;
                 compute_aabb(transform.World, collider);
+                if (collider.Dynamic) {
+                    dynamic_colliders.push(collider);
+                }
             } else if (collider.Dynamic) {
                 compute_aabb(transform.World, collider);
                 dynamic_colliders.push(collider);

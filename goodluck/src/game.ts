@@ -39,6 +39,7 @@ import {sys_debug_lines} from "./systems/sys_debug_lines.js";
 import {World} from "./world.js";
 import {sys_boundary} from "./systems/sys_boundary.js";
 import {sys_powerup} from "./systems/sys_powerup.js";
+import {sys_upgrade_stations} from "./systems/sys_upgrade_stations.js";
 import {play_music} from "./sound.js";
 import {SONG} from "./music.js";
 
@@ -88,6 +89,14 @@ export class Game extends Game3D {
     PowerupEntity: Entity = -1;
     MusicStarted = false;
 
+    MaxWaves = 4;
+    TotalKills = 0;
+    UpgradesPicked: string[] = [];
+    UpgradeStations: Entity[] = [];
+    RockEntity: Entity = -1;
+    FireRateMultiplier = 1;
+    UpgradeLabels: string[] = [];
+
     override FrameUpdate(delta: number) {
         if (!this.Paused) {
             // Collisions and physics.
@@ -105,18 +114,26 @@ export class Game extends Game3D {
             sys_control_mouse_move(this, delta);
             sys_control_jump(this, delta);
             sys_camera_toggle(this, delta);
-            sys_control_shoot(this, delta);
 
-            // Game logic.
-            sys_enemy_ai(this, delta);
-            sys_enemy_spawn(this, delta);
-            sys_damage(this, delta);
+            let upgrading_or_evac = this.WaveState === WaveState.Upgrading || this.WaveState === WaveState.Evac;
+
+            if (!upgrading_or_evac) {
+                sys_control_shoot(this, delta);
+            }
+
+            // Game logic — skip enemy AI/spawn during upgrade/evac.
+            if (!upgrading_or_evac) {
+                sys_enemy_ai(this, delta);
+                sys_enemy_spawn(this, delta);
+                sys_damage(this, delta);
+            }
             sys_lifespan(this, delta);
             sys_move(this, delta);
             sys_mimic(this, delta);
             sys_transform(this, delta);
             sys_boundary(this, delta);
             sys_powerup(this, delta);
+            sys_upgrade_stations(this, delta);
         }
 
         // Start music on first click/tap (AudioContext needs user gesture).
@@ -156,9 +173,12 @@ export const enum WaveState {
     Spawning,
     Fighting,
     Upgrading,
+    Evac,
+    Won,
 }
 
 export const enum WeaponType {
     Infantry,
     Shotgun,
+    Thrower,
 }
