@@ -57,6 +57,16 @@ export function App(game: Game) {
                 text-shadow:0 0 4px rgba(0,0,0,0.8);
             ">${game.PlayerHealth} / ${game.PlayerMaxHealth}</div>
         </div>
+        ${game.ThirdPersonTimer > 0 ? html`<div style="
+            position:fixed;
+            top:40px;left:50%;
+            transform:translateX(-50%);
+            pointer-events:none;
+            color:#3ff;
+            font-size:16px;
+            font-family:Arial,sans-serif;
+            text-shadow:0 0 8px rgba(0,200,255,0.8);
+        ">3rd Person: ${Math.ceil(game.ThirdPersonTimer)}s</div>` : ""}
         ${game.WaveState === WaveState.Upgrading ? UpgradeOverlay(game) : ""}
     </div>`;
 }

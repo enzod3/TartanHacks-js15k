@@ -9,6 +9,7 @@ import {light_directional} from "../components/com_light.js";
 import {render_textured_shaded} from "../components/com_render.js";
 import {RigidKind, rigid_body} from "../components/com_rigid_body.js";
 import {set_position, set_rotation, set_scale, transform} from "../components/com_transform.js";
+import {blueprint_powerup} from "../blueprints/blu_powerup.js";
 import {Game, Layer, WaveState} from "../game.js";
 import {Has} from "../world.js";
 import {World} from "../world.js";
@@ -23,6 +24,15 @@ export function scene_stage(game: Game) {
     game.WaveEnemiesTotal = 5;
     game.WaveEnemiesSpawned = 0;
     game.Paused = false;
+    game.ThirdPersonTimer = 0;
+
+    // Spawn first powerup.
+    let pa = Math.random() * Math.PI * 2;
+    let pr = 5 + Math.random() * 20;
+    game.PowerupEntity = instantiate(game, [
+        ...blueprint_powerup(game),
+        set_position(Math.cos(pa) * pr, 0, Math.sin(pa) * pr),
+    ]);
 
     // Ground collision (invisible).
     instantiate(game, [

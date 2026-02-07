@@ -1,3 +1,4 @@
+import {Quat, Vec3} from "../lib/math.js";
 import {Entity} from "../lib/world.js";
 import {Game3D} from "../lib/game.js";
 import {MAX_FORWARD_LIGHTS} from "../materials/light.js";
@@ -36,6 +37,7 @@ import {sys_enemy_spawn} from "./systems/sys_enemy_spawn.js";
 import {sys_debug_lines} from "./systems/sys_debug_lines.js";
 import {World} from "./world.js";
 import {sys_boundary} from "./systems/sys_boundary.js";
+import {sys_powerup} from "./systems/sys_powerup.js";
 
 export class Game extends Game3D {
     World = new World();
@@ -58,6 +60,11 @@ export class Game extends Game3D {
 
     CameraMode: CameraMode = CameraMode.FirstPerson;
     CameraEntity: Entity = 0;
+    CameraTransition = 0;
+    CameraTargetPos: Vec3 = [0, 1.8, 0];
+    CameraTargetRot: Quat = [0, 1, 0, 0];
+    CameraFromPos: Vec3 = [0, 1.8, 0];
+    CameraFromRot: Quat = [0, 1, 0, 0];
 
     JoystickX = 0;
     JoystickY = 0;
@@ -74,6 +81,8 @@ export class Game extends Game3D {
     ShotgunPelletDamage = 0.8;
     ShootCooldown = 0;
     Paused = false;
+    ThirdPersonTimer = 0;
+    PowerupEntity: Entity = -1;
 
     override FrameUpdate(delta: number) {
         if (!this.Paused) {
@@ -102,6 +111,7 @@ export class Game extends Game3D {
             sys_mimic(this, delta);
             sys_transform(this, delta);
             sys_boundary(this, delta);
+            sys_powerup(this, delta);
         }
 
         // Camera (after final transforms so there's no 1-frame lag).
@@ -123,6 +133,7 @@ export const enum Layer {
     Enemy = 4,
     Bullet = 8,
     Ground = 16,
+    Pickup = 32,
 }
 
 export const enum CameraMode {
