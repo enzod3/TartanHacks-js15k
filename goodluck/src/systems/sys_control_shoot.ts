@@ -11,8 +11,20 @@ import {play_sound} from "../sound.js";
 const BULLET_SPEED = 80;
 const INFANTRY_COOLDOWN = 0.15;
 const SHOTGUN_COOLDOWN = 0.6;
-const SHOTGUN_PELLETS = 16;
-const SHOTGUN_SPREAD = Math.PI / 12; // ~15 degrees cone radius
+const SHOTGUN_SPREAD = Math.PI / 14; // ~13 degrees half-spread
+const SHOTGUN_JITTER = 0.12;
+// Diamond/cross: 2-4-4-2 rows top to bottom.
+// Each entry is [h_fraction, v_fraction] from -1 to 1.
+const CROSS_PATTERN: [number, number][] = [
+    // Row 1 (top): 2 pellets.
+    [-0.33, 1], [0.33, 1],
+    // Row 2: 4 pellets.
+    [-1, 0.33], [-0.33, 0.33], [0.33, 0.33], [1, 0.33],
+    // Row 3: 4 pellets.
+    [-1, -0.33], [-0.33, -0.33], [0.33, -0.33], [1, -0.33],
+    // Row 4 (bottom): 2 pellets.
+    [-0.33, -1], [0.33, -1],
+];
 
 export function sys_control_shoot(game: Game, delta: number) {
     game.ShootCooldown -= delta;
@@ -71,12 +83,10 @@ export function sys_control_shoot(game: Game, delta: number) {
             right[0] * forward[1] - right[1] * forward[0],
         ];
 
-        for (let i = 0; i < SHOTGUN_PELLETS; i++) {
-            // Random point in a circle, sqrt for uniform distribution.
-            let r = Math.sqrt(Math.random()) * SHOTGUN_SPREAD;
-            let theta = Math.random() * Math.PI * 2;
-            let h_off = Math.cos(theta) * r;
-            let v_off = Math.sin(theta) * r;
+        for (let i = 0; i < CROSS_PATTERN.length; i++) {
+            let [h_frac, v_frac] = CROSS_PATTERN[i];
+            let h_off = h_frac * SHOTGUN_SPREAD + (Math.random() - 0.5) * SHOTGUN_JITTER;
+            let v_off = v_frac * SHOTGUN_SPREAD + (Math.random() - 0.5) * SHOTGUN_JITTER;
 
             let dx = forward[0] + right[0] * h_off + up[0] * v_off;
             let dy = forward[1] + right[1] * h_off + up[1] * v_off;

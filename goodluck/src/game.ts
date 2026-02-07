@@ -69,7 +69,7 @@ export class Game extends Game3D {
     WaveEnemiesSpawned = 0;
     Weapon: WeaponType = WeaponType.Infantry;
     BulletDamage = 1;
-    ShotgunPelletDamage = 0.4;
+    ShotgunPelletDamage = 0.8;
     ShootCooldown = 0;
     Paused = false;
 
