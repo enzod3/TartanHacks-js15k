@@ -124,7 +124,7 @@ export function scene_stage(game: Game) {
     // Shipwreck.
     instantiate(game, [
         transform(),
-        set_position(-30, 0, 25),
+        set_position(-30, -2, 25),
         set_rotation(0, -35, 8),
         children(
             // Hull bottom.
