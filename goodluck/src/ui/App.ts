@@ -2,8 +2,6 @@ import {html} from "../../lib/html.js";
 import {Enemies} from "../blueprints/blu_enemy.js";
 import {Action} from "../actions.js";
 import {Game, WaveState} from "../game.js";
-import {Fullscreen} from "./Fullscreen.js";
-
 const UPGRADE_DESCS: Record<string, string> = {
     "Rock Thrower": "Hurl boulders that pierce foes",
     "Shotgun": "Spread shot, close-range devastation",
@@ -22,6 +20,9 @@ function format_time(ms: number): string {
 }
 
 export function App(game: Game) {
+    if (game.WaveState === WaveState.Welcome) {
+        return WelcomeOverlay();
+    }
     if (game.WaveState === WaveState.Won) {
         return WonOverlay(game);
     }
@@ -33,7 +34,6 @@ export function App(game: Game) {
     let bar_color = hp_pct > 50 ? "#4c4" : hp_pct > 25 ? "#cc4" : "#c44";
     let remaining = Enemies.length + (game.WaveEnemiesTotal - game.WaveEnemiesSpawned);
     return html`<div>
-        ${Fullscreen()}
         <div style="
             position:fixed;
             top:50%;left:50%;
@@ -195,6 +195,28 @@ function WonOverlay(game: Game) {
                 cursor:pointer;
             "
         >Play Again</button>
+    </div>`;
+}
+
+function WelcomeOverlay() {
+    return html`<div style="
+        position:fixed;top:0;left:0;right:0;bottom:0;
+        background:rgba(0,0,0,0.7);
+        display:flex;flex-direction:column;align-items:center;justify-content:center;
+        z-index:100;font-family:Georgia,serif;
+    ">
+        <div style="font-size:56px;color:#d4c8a0;text-shadow:0 0 20px rgba(180,60,20,0.8),0 4px 8px rgba(0,0,0,0.9);margin-bottom:24px;letter-spacing:4px;">Zom<span style="color:#c44;">BEACH</span></div>
+        <div style="color:#a89870;font-size:13px;text-align:center;line-height:1.8;margin-bottom:24px;">
+            Move left &bull; Look right &bull; Tap to shoot<br>4 waves &bull; Collect orbs &bull; Choose upgrades
+        </div>
+        <button onclick="$(${Action.StartGame})" style="
+            pointer-events:auto;cursor:pointer;padding:14px 44px;
+            background:linear-gradient(180deg,#3a332b,#2a2520);
+            border:2px solid #5a5040;border-radius:6px;
+            color:#d4c8a0;font-family:Georgia,serif;font-size:22px;letter-spacing:2px;
+            text-shadow:1px 1px 2px rgba(0,0,0,0.8);
+            box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),inset 0 -2px 4px rgba(0,0,0,0.5),0 2px 12px rgba(0,0,0,0.6);
+        ">START</button>
     </div>`;
 }
 

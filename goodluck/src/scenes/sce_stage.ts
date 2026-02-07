@@ -25,10 +25,10 @@ export function scene_stage(game: Game) {
     Enemies.length = 0;
 
     game.Wave = 1;
-    game.WaveState = WaveState.Spawning;
+    game.WaveState = WaveState.Welcome;
     game.WaveEnemiesTotal = 5;
     game.WaveEnemiesSpawned = 0;
-    game.Paused = false;
+    game.Paused = true;
     game.ThirdPersonTimer = 0;
     game.TotalKills = 0;
     game.UpgradesPicked = [];
@@ -37,7 +37,7 @@ export function scene_stage(game: Game) {
     game.FireRateMultiplier = 1;
     game.UpgradeLabels = [];
     game.UpgradeChoices = [];
-    game.StartTime = Date.now();
+    game.StartTime = 0;
 
     // Spawn first powerup.
     let pa = Math.random() * Math.PI * 2;

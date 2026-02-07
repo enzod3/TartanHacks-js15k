@@ -174,6 +174,7 @@ export const enum CameraMode {
 }
 
 export const enum WaveState {
+    Welcome,
     Spawning,
     Fighting,
     Upgrading,

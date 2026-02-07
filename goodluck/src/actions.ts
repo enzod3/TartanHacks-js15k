@@ -3,7 +3,7 @@ import {Vec3} from "../lib/math.js";
 import {instantiate} from "../lib/game.js";
 import {blueprint_bullet} from "./blueprints/blu_bullet.js";
 import {set_position, set_scale} from "./components/com_transform.js";
-import {Game} from "./game.js";
+import {Game, WaveState} from "./game.js";
 import {play_gunshot, play_pickup} from "./sound.js";
 import {Has} from "./world.js";
 import {start_wave} from "./systems/sys_enemy_spawn.js";
@@ -14,6 +14,7 @@ export const enum Action {
     PlayAgain,
     ChooseUpgrade,
     GrenadeExplode,
+    StartGame,
 }
 
 export function dispatch(game: Game, action: Action, payload: unknown) {
@@ -40,6 +41,12 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 game.UpgradeLabels = [];
                 start_wave(game);
             }
+            break;
+        }
+        case Action.StartGame: {
+            game.WaveState = WaveState.Spawning;
+            game.Paused = false;
+            game.StartTime = Date.now();
             break;
         }
         case Action.GrenadeExplode: {
