@@ -6,7 +6,7 @@ import {set_position} from "../components/com_transform.js";
 import {Game, WaveState} from "../game.js";
 
 const SPAWN_INTERVAL = 1.5;
-const MAP_RADIUS = 40;
+const MAP_RADIUS = 37;
 
 let time_since_spawn = 0;
 
@@ -35,7 +35,7 @@ export function sys_enemy_spawn(game: Game, delta: number) {
                 }
 
                 let x = Math.cos(angle) * MAP_RADIUS;
-                let z = Math.sin(angle) * MAP_RADIUS
+                let z = Math.sin(angle) * MAP_RADIUS;
                 let hp = game.Wave;
                 instantiate(game, [
                     ...blueprint_enemy(game, hp),
