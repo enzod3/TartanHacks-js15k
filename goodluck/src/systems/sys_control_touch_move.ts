@@ -237,6 +237,10 @@ let joystick_y = 0;
 let is_moving = false;
 let current_touch_x = 0;
 let current_touch_y = 0;
+let right_touch_id: number | null = null;
+let right_touch_x = 0;
+let right_touch_y = 0;
+let is_dragging_right = false;
 
 export function sys_control_touch_move(game: Game, delta: number) {
     // 1. Reset UI state for the new frame
@@ -253,17 +257,172 @@ export function sys_control_touch_move(game: Game, delta: number) {
     draw_joystick(game);
 }
 
+// function update(game: Game, entity: Entity) {
+//     let control = game.World.ControlPlayer[entity];
+//     let transform = game.World.Transform[entity];
+//     let move = game.World.Move[entity];
+//
+//     // Reset move direction every frame
+//     //move.Direction = [0, 0, 0];
+//
+//     // Iterate through potential touches
+//     for (let t = 0; t < 2; t++) {
+//         let state = game.InputState[`Touch${t}`];
+//         if (!state) continue;
+//
+//         let x = game.InputState[`Touch${t}X`];
+//         let y = game.InputState[`Touch${t}Y`];
+//         let dx = game.InputDelta[`Touch${t}X`];
+//         let dy = game.InputDelta[`Touch${t}Y`];
+//
+//         // LEFT SIDE = MOVEMENT
+//         if (x < game.ViewportWidth / 2) {
+//             is_moving = true;
+//             current_touch_x = x;
+//             current_touch_y = y;
+//
+//             if (game.InputDelta[`Touch${t}`] === 1) {
+//                 joystick_x = x;
+//                 joystick_y = y;
+//             }
+//
+//             let dist_x = (x - joystick_x) / (game.ViewportWidth / 8);
+//             let dist_y = (y - joystick_y) / (game.ViewportHeight / 8);
+//
+//             move.Direction[0] -= clamp(-1, 1, dist_x); // Strafe
+//             move.Direction[2] -= clamp(-1, 1, dist_y); // Forward/Back
+//         } 
+//
+//         // RIGHT SIDE = PANNING
+//         else {
+//       let tx = x / game.ViewportWidth;
+//       let ty = y / game.ViewportHeight;
+//       let dist_to_button = Math.sqrt(Math.pow(tx - 0.85, 2) + Math.pow(ty - 0.75, 2));
+//       if(dist_to_button > 0.1){
+//             if (control.Yaw && dx) {
+//                 let amount = dx * control.Yaw * TOUCH_SENSITIVITY * DEG_TO_RAD;
+//                 quat_from_axis(rotation, AXIS_Y, -amount);
+//                 quat_multiply(transform.Rotation, rotation, transform.Rotation);
+//                 game.World.Signature[entity] |= Has.Dirty;
+//             }
+//
+//             if (control.Pitch && dy) {
+//                 let current_pitch = quat_get_pitch(transform.Rotation);
+//                 let amount = clamp(
+//                     control.MinPitch - current_pitch, 
+//                     control.MaxPitch - current_pitch, 
+//                     dy * control.Pitch * TOUCH_SENSITIVITY * DEG_TO_RAD
+//                 );
+//                 quat_from_axis(rotation, AXIS_X, amount);
+//                 quat_multiply(transform.Rotation, transform.Rotation, rotation);
+//                 game.World.Signature[entity] |= Has.Dirty;
+//             }
+//       }
+//         }
+//     }
+// }
+//function update(game: Game, entity: Entity) {
+//     let control = game.World.ControlPlayer[entity];
+//     let transform = game.World.Transform[entity];
+//     let move = game.World.Move[entity];
+//
+//     for (let t = 0; t < 2; t++) {
+//         let state = game.InputState[`Touch${t}`];
+//
+//         // Handle touch release for shooting
+//         if (game.InputDelta[`Touch${t}`] === -1 && t === right_touch_id) {
+//             // If the finger was lifted and we never dragged far enough to pan, SHOOT!
+//             if (!is_dragging_right) {
+//                 game.InputState["TapShoot"] = 1; 
+//             }
+//             right_touch_id = null;
+//             is_dragging_right = false;
+//         }
+//
+//         if (!state) continue;
+//
+//         let x = game.InputState[`Touch${t}X`];
+//         let y = game.InputState[`Touch${t}Y`];
+//         let dx = game.InputDelta[`Touch${t}X`];
+//         let dy = game.InputDelta[`Touch${t}Y`];
+//
+//         // LEFT SIDE = MOVEMENT
+//         if (x < game.ViewportWidth / 2) {
+//             is_moving = true;
+//             current_touch_x = x;
+//             current_touch_y = y;
+//
+//             if (game.InputDelta[`Touch${t}`] === 1) {
+//                 joystick_x = x;
+//                 joystick_y = y;
+//             }
+//
+//             let dist_x = (x - joystick_x) / (game.ViewportWidth / 8);
+//             let dist_y = (y - joystick_y) / (game.ViewportHeight / 8);
+//
+//             move.Direction[0] -= clamp(-1, 1, dist_x); 
+//             move.Direction[2] -= clamp(-1, 1, dist_y);
+//         } 
+//
+//         // RIGHT SIDE = DUAL ACTION (PAN OR TAP)
+//         else {
+//             // Initialize tracking for a new touch
+//             if (game.InputDelta[`Touch${t}`] === 1) {
+//                 right_touch_id = t;
+//                 right_touch_x = x;
+//                 right_touch_y = y;
+//                 is_dragging_right = false;
+//             }
+//
+//             // Calculate distance from start to see if we should start panning
+//             let total_dist = Math.sqrt(Math.pow(x - right_touch_x, 2) + Math.pow(y - right_touch_y, 2));
+//
+//             // If we move more than 10 pixels, consider it a pan/drag
+//             if (total_dist > 10) {
+//                 is_dragging_right = true;
+//             }
+//
+//             if (is_dragging_right) {
+//                 if (control.Yaw && dx) {
+//                     let amount = dx * control.Yaw * TOUCH_SENSITIVITY * DEG_TO_RAD;
+//                     quat_from_axis(rotation, AXIS_Y, -amount);
+//                     quat_multiply(transform.Rotation, rotation, transform.Rotation);
+//                     game.World.Signature[entity] |= Has.Dirty;
+//                 }
+//
+//                 if (control.Pitch && dy) {
+//                     let current_pitch = quat_get_pitch(transform.Rotation);
+//                     let amount = clamp(
+//                         control.MinPitch - current_pitch, 
+//                         control.MaxPitch - current_pitch, 
+//                         dy * control.Pitch * TOUCH_SENSITIVITY * DEG_TO_RAD
+//                     );
+//                     quat_from_axis(rotation, AXIS_X, amount);
+//                     quat_multiply(transform.Rotation, transform.Rotation, rotation);
+//                     game.World.Signature[entity] |= Has.Dirty;
+//                 }
+//             }
+//         }
+//     }
+// }
 function update(game: Game, entity: Entity) {
     let control = game.World.ControlPlayer[entity];
     let transform = game.World.Transform[entity];
     let move = game.World.Move[entity];
 
-    // Reset move direction every frame
-    //move.Direction = [0, 0, 0];
-
-    // Iterate through potential touches
     for (let t = 0; t < 2; t++) {
         let state = game.InputState[`Touch${t}`];
+        
+        // Handle touch release for shooting
+        if (game.InputDelta[`Touch${t}`] === -1 && t === right_touch_id) {
+            // If the finger was lifted and we never dragged far enough to pan, SHOOT!
+            if (!is_dragging_right) {
+                game.InputState["TapShoot"] = 1; 
+            }
+            right_touch_id = null;
+            is_dragging_right = false;
+        }
+
         if (!state) continue;
 
         let x = game.InputState[`Touch${t}X`];
@@ -285,34 +444,51 @@ function update(game: Game, entity: Entity) {
             let dist_x = (x - joystick_x) / (game.ViewportWidth / 8);
             let dist_y = (y - joystick_y) / (game.ViewportHeight / 8);
 
-            move.Direction[0] -= clamp(-1, 1, dist_x); // Strafe
-            move.Direction[2] -= clamp(-1, 1, dist_y); // Forward/Back
+            move.Direction[0] -= clamp(-1, 1, dist_x); 
+            move.Direction[2] -= clamp(-1, 1, dist_y);
         } 
         
-        // RIGHT SIDE = PANNING
+        // RIGHT SIDE = DUAL ACTION (PAN OR TAP)
         else {
-            if (control.Yaw && dx) {
-                let amount = dx * control.Yaw * TOUCH_SENSITIVITY * DEG_TO_RAD;
-                quat_from_axis(rotation, AXIS_Y, -amount);
-                quat_multiply(transform.Rotation, rotation, transform.Rotation);
-                game.World.Signature[entity] |= Has.Dirty;
+            // Initialize tracking for a new touch
+            if (game.InputDelta[`Touch${t}`] === 1) {
+                right_touch_id = t;
+                right_touch_x = x;
+                right_touch_y = y;
+                is_dragging_right = false;
             }
 
-            if (control.Pitch && dy) {
-                let current_pitch = quat_get_pitch(transform.Rotation);
-                let amount = clamp(
-                    control.MinPitch - current_pitch, 
-                    control.MaxPitch - current_pitch, 
-                    dy * control.Pitch * TOUCH_SENSITIVITY * DEG_TO_RAD
-                );
-                quat_from_axis(rotation, AXIS_X, amount);
-                quat_multiply(transform.Rotation, transform.Rotation, rotation);
-                game.World.Signature[entity] |= Has.Dirty;
+            // Calculate distance from start to see if we should start panning
+            let total_dist = Math.sqrt(Math.pow(x - right_touch_x, 2) + Math.pow(y - right_touch_y, 2));
+            
+            // If we move more than 10 pixels, consider it a pan/drag
+            if (total_dist > 10) {
+                is_dragging_right = true;
+            }
+
+            if (is_dragging_right) {
+                if (control.Yaw && dx) {
+                    let amount = dx * control.Yaw * TOUCH_SENSITIVITY * DEG_TO_RAD;
+                    quat_from_axis(rotation, AXIS_Y, -amount);
+                    quat_multiply(transform.Rotation, rotation, transform.Rotation);
+                    game.World.Signature[entity] |= Has.Dirty;
+                }
+
+                if (control.Pitch && dy) {
+                    let current_pitch = quat_get_pitch(transform.Rotation);
+                    let amount = clamp(
+                        control.MinPitch - current_pitch, 
+                        control.MaxPitch - current_pitch, 
+                        dy * control.Pitch * TOUCH_SENSITIVITY * DEG_TO_RAD
+                    );
+                    quat_from_axis(rotation, AXIS_X, amount);
+                    quat_multiply(transform.Rotation, transform.Rotation, rotation);
+                    game.World.Signature[entity] |= Has.Dirty;
+                }
             }
         }
     }
 }
-
 function draw_joystick(game: Game) {
     const ctx = (game as any).ForegroundContext;
     if (!ctx) return;
@@ -335,7 +511,7 @@ function draw_joystick(game: Game) {
         let dy = current_touch_y - joystick_y;
         let dist = Math.sqrt(dx * dx + dy * dy);
         let max_dist = 40;
-        
+
         if (dist > max_dist) {
             dx = (dx / dist) * max_dist;
             dy = (dy / dist) * max_dist;
@@ -346,4 +522,22 @@ function draw_joystick(game: Game) {
         ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
         ctx.fill();
     }
+    // --- DRAW SHOOT BUTTON ---
+    // const btn_x = game.ViewportWidth * 0.85;
+    // const btn_y = game.ViewportHeight * 0.75;
+    // const btn_r = game.ViewportWidth * 0.1;
+    //
+    // ctx.beginPath();
+    // ctx.arc(btn_x, btn_y, btn_r, 0, Math.PI * 2);
+    // ctx.fillStyle = "rgba(255, 0, 0, 0.3)"; // Reddish transparent
+    // ctx.fill();
+    // ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+    // ctx.lineWidth = 3;
+    // ctx.stroke();
+    //
+    // // Add a simple label or icon
+    // ctx.fillStyle = "white";
+    // ctx.font = "bold 20px Arial";
+    // ctx.textAlign = "center";
+    // ctx.fillText("FIRE", btn_x, btn_y + 7);
 }

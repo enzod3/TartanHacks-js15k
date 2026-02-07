@@ -28,14 +28,30 @@ const CROSS_PATTERN: [number, number][] = [
 
 export function sys_control_shoot(game: Game, delta: number) {
     game.ShootCooldown -= delta;
-
-    if (game.InputDelta["Mouse0"] !== 1 && !game.InputState["Mouse0"]) {
-        return;
+    let wants_to_shoot = false;
+    
+    // 2. If the mouse is doing anything, it becomes 'true'
+    if (game.InputState["Mouse0"] || game.InputDelta["Mouse0"] === 1) {
+        wants_to_shoot = true;
     }
 
-    if (game.ShootCooldown > 0) {
+    // 3. If a touch tap was detected, it also becomes 'true'
+    if (game.InputState["TapShoot"] === 1) {
+        wants_to_shoot = true;
+        game.InputState["TapShoot"] = 0; 
+    }
+
+    // 4. As long as ONE of those was true, we pass this gate
+    if (!wants_to_shoot || game.ShootCooldown > 0) {
         return;
     }
+    // if (game.InputDelta["Mouse0"] !== 1 && !game.InputState["Mouse0"]) {
+    //     return;
+    // }
+    //
+    // if (game.ShootCooldown > 0) {
+    //     return;
+    // }
 
     let forward: Vec3 = [0, 0, 0];
     let position: Vec3 = [0, 0, 0];
