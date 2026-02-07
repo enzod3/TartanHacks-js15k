@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { margin: 0; overflow: hidden; background: #222; display: flex; justify-content: center; align-items: center; height: 100vh; }
+  canvas { display: block; cursor: crosshair; }
+  #hud { position: fixed; top: 10px; left: 10px; color: #fff; font: 14px monospace; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 4px; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<canvas id="c" width="800" height="600"></canvas>
+<div id="hud">WASD: move | Mouse: look | V: toggle view | Click to lock pointer</div>
+
+<script src="w.min.full.js"></script>
+
+    <script src="index.js"></script>
+
+</body>
+</html>
