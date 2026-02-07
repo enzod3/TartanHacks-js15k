@@ -19,7 +19,7 @@ export function scene_stage(game: Game) {
     instantiate(game, [
         ...blueprint_ground(game),
         set_position(0, -0.5, 0),
-        set_scale(50, 1, 50),
+        set_scale(80, 1, 80),
     ]);
 
     // Water plane (beneath island).

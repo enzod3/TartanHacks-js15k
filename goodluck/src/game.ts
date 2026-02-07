@@ -12,8 +12,6 @@ import {sys_camera} from "./systems/sys_camera.js";
 import {sys_camera_toggle} from "./systems/sys_camera_toggle.js";
 import {sys_control_shoot} from "./systems/sys_control_shoot.js";
 import {sys_damage} from "./systems/sys_damage.js";
-import {sys_enemy_ai} from "./systems/sys_enemy_ai.js";
-import {sys_enemy_spawn} from "./systems/sys_enemy_spawn.js";
 import {sys_lifespan} from "./systems/sys_lifespan.js";
 import {sys_collide} from "./systems/sys_collide.js";
 import {sys_control_jump} from "./systems/sys_control_jump.js";
@@ -30,7 +28,10 @@ import {sys_render_forward} from "./systems/sys_render_forward.js";
 import {sys_resize} from "./systems/sys_resize.js";
 import {sys_transform} from "./systems/sys_transform.js";
 import {sys_ui} from "./systems/sys_ui.js";
+import {sys_enemy_ai} from "./systems/sys_enemy_ai.js";
+import {sys_enemy_spawn} from "./systems/sys_enemy_spawn.js";
 import {World} from "./world.js";
+import {sys_boundary} from "./systems/sys_boundary.js";
 
 export class Game extends Game3D {
     World = new World();
@@ -82,6 +83,7 @@ export class Game extends Game3D {
         sys_move(this, delta);
         sys_mimic(this, delta);
         sys_transform(this, delta);
+        sys_boundary(this, delta);
 
         // Camera (after final transforms so there's no 1-frame lag).
         sys_resize(this, delta);
