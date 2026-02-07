@@ -19,7 +19,7 @@ export function blueprint_player(game: Game) {
         transform(),
         control_player(true, 0.2, 0),
         move(10, 3),
-        collide(true, Layer.Player, Layer.Terrain),
+        collide(true, Layer.Player, Layer.Terrain | Layer.Enemy),
         rigid_body(RigidKind.Dynamic),
         children(
             // Player body (single rectangle).
@@ -37,7 +37,7 @@ export function blueprint_player(game: Game) {
                 children(
                     // Gun (visible in all views).
                     [
-                        transform([0.15, 1.0, 0.3], [0, 0, 0, 1], [0.08, 0.08, 0.5]),
+                        transform([0, 0.7, 0.3], [0, 0, 0, 1], [0.08, 0.08, 0.5]),
                         render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.3, 0.3, 0.35, 1]),
                     ],
                 ),

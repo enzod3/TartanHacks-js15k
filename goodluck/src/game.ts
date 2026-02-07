@@ -12,6 +12,8 @@ import {sys_camera} from "./systems/sys_camera.js";
 import {sys_camera_toggle} from "./systems/sys_camera_toggle.js";
 import {sys_control_shoot} from "./systems/sys_control_shoot.js";
 import {sys_damage} from "./systems/sys_damage.js";
+import {sys_enemy_ai} from "./systems/sys_enemy_ai.js";
+import {sys_enemy_spawn} from "./systems/sys_enemy_spawn.js";
 import {sys_lifespan} from "./systems/sys_lifespan.js";
 import {sys_collide} from "./systems/sys_collide.js";
 import {sys_control_jump} from "./systems/sys_control_jump.js";
@@ -52,6 +54,9 @@ export class Game extends Game3D {
     JoystickX = 0;
     JoystickY = 0;
 
+    PlayerHealth = 10;
+    PlayerMaxHealth = 10;
+
     override FrameUpdate(delta: number) {
         // Collisions and physics.
         sys_physics_integrate(this, delta);
@@ -70,6 +75,8 @@ export class Game extends Game3D {
         sys_control_shoot(this, delta);
 
         // Game logic.
+        sys_enemy_ai(this, delta);
+        sys_enemy_spawn(this, delta);
         sys_damage(this, delta);
         sys_lifespan(this, delta);
         sys_move(this, delta);

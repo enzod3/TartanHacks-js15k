@@ -8,7 +8,7 @@ import {Game, Layer} from "../game.js";
 export function blueprint_bullet(game: Game) {
     return [
         transform(),
-        collide(true, Layer.Bullet, Layer.Terrain | Layer.Enemy),
+        collide(true, Layer.Bullet, Layer.Terrain | Layer.Enemy, [4, 4, 4]),
         rigid_body(RigidKind.Dynamic),
         render_colored_shaded(
             game.MaterialColoredShaded,

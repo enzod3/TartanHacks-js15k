@@ -15,8 +15,9 @@ export function sys_camera_toggle(game: Game, delta: number) {
             camera_transform.Rotation = [0, 1, 0, 0];
         } else {
             // Top-down bird's eye: high above, looking straight down.
+            // Quaternion [0, 0.707, 0.707, 0] = look -Y, screen up = +Z.
             camera_transform.Translation = [0, 25, 0];
-            camera_transform.Rotation = [-0.707, 0, 0, 0.707];
+            camera_transform.Rotation = [0, 0.707, 0.707, 0];
         }
         game.World.Signature[CameraChild] |= Has.Dirty;
 

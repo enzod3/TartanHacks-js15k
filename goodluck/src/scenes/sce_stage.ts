@@ -1,6 +1,6 @@
 import {instantiate} from "../../lib/game.js";
 import {blueprint_camera_follow} from "../blueprints/blu_camera_follow.js";
-import {Enemies, blueprint_enemy} from "../blueprints/blu_enemy.js";
+import {Enemies} from "../blueprints/blu_enemy.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
 import {CameraAnchor, PlayerBodyParts, blueprint_player} from "../blueprints/blu_player.js";
 import {light_directional} from "../components/com_light.js";
@@ -63,15 +63,12 @@ export function scene_stage(game: Game) {
     instantiate(game, [transform(), set_rotation(-45, 30, 0), light_directional([0.6, 0.7, 1.0], 1.2)]);
 
     // Player (y=0.5 so bottom of cube sits on ground surface at y=0).
-    instantiate(game, [...blueprint_player(game), set_position(0, 0.5, 0), set_rotation(0, 180, 0)]);
+    instantiate(game, [...blueprint_player(game), set_position(0, 0.5, 0)]);
 
     // Hide player body at startup (first-person default).
     for (let part of PlayerBodyParts) {
         game.World.Signature[part] &= ~Has.Render;
     }
-
-    // Dummy enemy.
-    instantiate(game, [...blueprint_enemy(game), set_position(0, 0.5, -8)]);
 
     // Camera.
     instantiate(game, [
