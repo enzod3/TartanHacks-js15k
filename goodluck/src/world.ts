@@ -2,7 +2,6 @@ import {WorldImpl} from "../lib/world.js";
 import {Camera} from "./components/com_camera.js";
 import {Children} from "./components/com_children.js";
 import {Collide} from "./components/com_collide.js";
-import {ControlAlways} from "./components/com_control_always.js";
 import {ControlPlayer} from "./components/com_control_player.js";
 import {Lifespan} from "./components/com_lifespan.js";
 import {Light} from "./components/com_light.js";
@@ -16,7 +15,6 @@ const enum Component {
     Camera,
     Children,
     Collide,
-    ControlAlways,
     ControlPlayer,
     Dirty,
     Lifespan,
@@ -33,7 +31,6 @@ export const enum Has {
     Camera = 1 << Component.Camera,
     Children = 1 << Component.Children,
     Collide = 1 << Component.Collide,
-    ControlAlways = 1 << Component.ControlAlways,
     ControlPlayer = 1 << Component.ControlPlayer,
     Dirty = 1 << Component.Dirty,
     Lifespan = 1 << Component.Lifespan,
@@ -49,7 +46,6 @@ export class World extends WorldImpl {
     Camera: Array<Camera> = [];
     Children: Array<Children> = [];
     Collide: Array<Collide> = [];
-    ControlAlways: Array<ControlAlways> = [];
     ControlPlayer: Array<ControlPlayer> = [];
     Lifespan: Array<Lifespan> = [];
     Light: Array<Light> = [];

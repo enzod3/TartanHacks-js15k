@@ -33,7 +33,7 @@ import {
 import {Entity, first_having} from "../../lib/world.js";
 import {Attribute} from "../../materials/layout.js";
 import {CameraEye, CameraKind} from "../components/com_camera.js";
-import {FLOATS_PER_PARTICLE, Render, RenderKind, RenderPhase} from "../components/com_render.js";
+import {Render, RenderKind, RenderPhase} from "../components/com_render.js";
 import {Game} from "../game.js";
 import {Has} from "../world.js";
 
@@ -331,48 +331,7 @@ function draw_entity(game: Game, entity: Entity, current_target?: WebGLTexture) 
             game.Gl.vertexAttribPointer(Attribute.Position, 3, GL_FLOAT, false, 0, 0);
             game.Gl.drawArrays(render.Material.Mode, 0, render.IndexCount);
             break;
-        case RenderKind.ParticlesColored: {
-            let emitter = game.World.EmitParticles[entity];
-
-            game.Gl.uniform4fv(render.Material.Locations.ColorStart, render.ColorStart);
-            game.Gl.uniform4fv(render.Material.Locations.ColorEnd, render.ColorEnd);
-
-            game.Gl.uniform4f(
-                render.Material.Locations.Details,
-                emitter.Lifespan,
-                emitter.Speed,
-                ...render.Size,
-            );
-
-            let instances = Float32Array.from(emitter.Instances);
-            game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.Buffer);
-            game.Gl.bufferSubData(GL_ARRAY_BUFFER, 0, instances);
-
-            game.Gl.enableVertexAttribArray(render.Material.Locations.OriginAge);
-            game.Gl.vertexAttribPointer(
-                render.Material.Locations.OriginAge,
-                4,
-                GL_FLOAT,
-                false,
-                FLOATS_PER_PARTICLE * 4,
-                0,
-            );
-
-            game.Gl.enableVertexAttribArray(render.Material.Locations.Direction);
-            game.Gl.vertexAttribPointer(
-                render.Material.Locations.Direction,
-                3,
-                GL_FLOAT,
-                false,
-                FLOATS_PER_PARTICLE * 4,
-                4 * 4,
-            );
-            game.Gl.drawArrays(
-                render.Material.Mode,
-                0,
-                emitter.Instances.length / FLOATS_PER_PARTICLE,
-            );
+        case RenderKind.ParticlesColored:
             break;
-        }
     }
 }
