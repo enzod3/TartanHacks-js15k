@@ -7,7 +7,9 @@ import {mesh_cube} from "../meshes/cube.js";
 import {mesh_plane} from "../meshes/plane.js";
 import {mesh_island} from "./meshes/mesh_island.js";
 import {tex_ground} from "./textures/tex_ground.js";
+import {tex_rock} from "./textures/tex_rock.js";
 import {tex_water} from "./textures/tex_water.js";
+import {tex_wood} from "./textures/tex_wood.js";
 import {sys_camera} from "./systems/sys_camera.js";
 import {sys_camera_toggle} from "./systems/sys_camera_toggle.js";
 import {sys_control_shoot} from "./systems/sys_control_shoot.js";
@@ -30,6 +32,7 @@ import {sys_transform} from "./systems/sys_transform.js";
 import {sys_ui} from "./systems/sys_ui.js";
 import {sys_enemy_ai} from "./systems/sys_enemy_ai.js";
 import {sys_enemy_spawn} from "./systems/sys_enemy_spawn.js";
+import {sys_debug_lines} from "./systems/sys_debug_lines.js";
 import {World} from "./world.js";
 import {sys_boundary} from "./systems/sys_boundary.js";
 
@@ -44,7 +47,9 @@ export class Game extends Game3D {
     MeshIsland = mesh_island(this.Gl);
 
     TexGround = tex_ground(this.Gl);
+    TexRock = tex_rock(this.Gl);
     TexWater = tex_water(this.Gl);
+    TexWood = tex_wood(this.Gl);
 
     LightPositions = new Float32Array(4 * MAX_FORWARD_LIGHTS);
     LightDetails = new Float32Array(4 * MAX_FORWARD_LIGHTS);
@@ -92,6 +97,7 @@ export class Game extends Game3D {
         // Rendering.
         sys_light(this, delta);
         sys_render_forward(this, delta);
+        sys_debug_lines(this, delta);
         sys_ui(this, delta);
     }
 }
@@ -102,6 +108,7 @@ export const enum Layer {
     Terrain = 2,
     Enemy = 4,
     Bullet = 8,
+    Ground = 16,
 }
 
 export const enum CameraMode {

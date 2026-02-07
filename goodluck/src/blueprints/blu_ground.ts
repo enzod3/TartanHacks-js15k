@@ -6,7 +6,7 @@ import {Game, Layer} from "../game.js";
 export function blueprint_ground(game: Game) {
     return [
         transform(),
-        collide(false, Layer.Terrain, Layer.None),
+        collide(false, Layer.Ground, Layer.None),
         rigid_body(RigidKind.Static),
     ];
 }

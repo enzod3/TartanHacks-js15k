@@ -13,15 +13,20 @@ export interface EnemyData {
     Health: number;
     MaxHealth: number;
     HealthBar: Entity;
+    WaypointX: number;
+    WaypointZ: number;
+    WaypointActive: boolean;
+    VelX: number;
+    VelZ: number;
 }
 
 export let Enemies: EnemyData[] = [];
 
 export function blueprint_enemy(game: Game) {
-    let enemy_data: EnemyData = {Entity: 0, Health: 2, MaxHealth: 2, HealthBar: 0};
+    let enemy_data: EnemyData = {Entity: 0, Health: 2, MaxHealth: 2, HealthBar: 0, WaypointX: 0, WaypointZ: 0, WaypointActive: false, VelX: 0, VelZ: 0};
     return [
         transform(),
-        collide(true, Layer.Enemy, Layer.Bullet | Layer.Player, [0.6, 1.6, 0.4]),
+        collide(true, Layer.Enemy, Layer.Bullet | Layer.Player | Layer.Terrain | Layer.Ground, [0.9, 2.0, 0.6]),
         rigid_body(RigidKind.Kinematic),
         move(3, 0),
         callback((_game, entity) => {
@@ -31,12 +36,12 @@ export function blueprint_enemy(game: Game) {
         children(
             // Enemy body (single red rectangle).
             [
-                transform([0, 0.7, 0], [0, 0, 0, 1], [0.6, 1.6, 0.4]),
+                transform([0, 0.9, 0], [0, 0, 0, 1], [0.9, 2.0, 0.6]),
                 render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.85, 0.2, 0.2, 1]),
             ],
             // Health bar (green).
             [
-                transform([0, 1.8, 0], [0, 0, 0, 1], [1.0, 0.14, 0.05]),
+                transform([0, 2.2, 0], [0, 0, 0, 1], [1.2, 0.14, 0.05]),
                 render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.2, 0.9, 0.2, 1], 0, 1.0),
                 callback((_game, entity) => {
                     enemy_data.HealthBar = entity;

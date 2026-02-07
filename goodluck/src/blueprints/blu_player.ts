@@ -19,12 +19,12 @@ export function blueprint_player(game: Game) {
         transform(),
         control_player(true, 0.2, 0),
         move(10, 3),
-        collide(true, Layer.Player, Layer.Terrain | Layer.Enemy),
+        collide(true, Layer.Player, Layer.Terrain | Layer.Enemy | Layer.Ground),
         rigid_body(RigidKind.Dynamic),
         children(
             // Player body (single rectangle).
             [
-                transform([0, 0.7, 0], [0, 0, 0, 1], [0.6, 1.6, 0.4]),
+                transform([0, 0.9, 0], [0, 0, 0, 1], [0.9, 2.0, 0.6]),
                 render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.85, 0.7, 0.45, 1]),
                 callback((_game, entity) => PlayerBodyParts.push(entity)),
             ],
