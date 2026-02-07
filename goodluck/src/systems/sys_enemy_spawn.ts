@@ -9,7 +9,7 @@ import {Game, WaveState, WeaponType} from "../game.js";
 import {StationTypes, set_evac_entity} from "./sys_upgrade_stations.js";
 
 const SPAWN_INTERVAL = 1.5;
-const MAP_RADIUS = 40;
+const MAP_RADIUS = 37;
 
 let time_since_spawn = 0;
 
@@ -20,10 +20,25 @@ export function sys_enemy_spawn(game: Game, delta: number) {
             if (time_since_spawn >= SPAWN_INTERVAL && game.WaveEnemiesSpawned < game.WaveEnemiesTotal) {
                 time_since_spawn = 0;
 
+                // let angle = Math.random() * Math.PI * 2;
+                // let x = Math.cos(angle) * MAP_RADIUS;
+                // let z = Math.sin(angle) * MAP_RADIUS;
+
+                // 1. Pick a random angle
                 let angle = Math.random() * Math.PI * 2;
+
+                // 2. If the angle falls in the "Shipwreck Slice", 
+                // push it out of the zone (add a 45-degree offset)
+                const SHOT_ZONE_START = 2.1;
+                const SHOT_ZONE_END = 2.9;
+
+                if (angle > SHOT_ZONE_START && angle < SHOT_ZONE_END) {
+                    // Shift the enemy to spawn just clockwise of the ship instead
+                    angle = SHOT_ZONE_END + Math.random(); 
+                }
+
                 let x = Math.cos(angle) * MAP_RADIUS;
                 let z = Math.sin(angle) * MAP_RADIUS;
-
                 let hp = game.Wave;
                 instantiate(game, [
                     ...blueprint_enemy(game, hp),
