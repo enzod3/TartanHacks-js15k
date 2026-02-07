@@ -1,6 +1,7 @@
 import {instantiate} from "../../lib/game.js";
 import {blueprint_enemy, Enemies} from "../blueprints/blu_enemy.js";
 import {blueprint_powerup} from "../blueprints/blu_powerup.js";
+import {destroy_all} from "../components/com_children.js";
 import {set_position} from "../components/com_transform.js";
 import {Game, WaveState} from "../game.js";
 
@@ -54,6 +55,12 @@ export function start_wave(game: Game) {
     game.WaveState = WaveState.Spawning;
     game.Paused = false;
     time_since_spawn = 0;
+
+    // Destroy previous powerup if it still exists.
+    if (game.PowerupEntity >= 0) {
+        destroy_all(game.World, game.PowerupEntity);
+        game.PowerupEntity = -1;
+    }
 
     // Spawn powerup at a random spot.
     let angle = Math.random() * Math.PI * 2;

@@ -8,7 +8,7 @@ import {render_colored_shaded} from "../components/com_render.js";
 import {RigidKind, rigid_body} from "../components/com_rigid_body.js";
 import {set_position, set_scale, transform} from "../components/com_transform.js";
 import {Game, Layer, WeaponType} from "../game.js";
-import {play_sound} from "../sound.js";
+import {play_hit, play_hurt, play_kill} from "../sound.js";
 import {Has} from "../world.js";
 
 const CONTACT_DAMAGE_COOLDOWN = 0.5;
@@ -42,19 +42,20 @@ export function sys_damage(game: Game, delta: number) {
                 game.World.Signature[enemy.HealthBar] |= Has.Dirty;
 
                 if (enemy.Health <= 0) {
-                    play_sound(120, 0.3, "sawtooth");
+                    play_kill();
                     spawn_debris(game, enemy.Entity);
                     destroy_all(game.World, enemy.Entity);
                     Enemies.splice(i, 1);
                     break;
                 } else {
-                    play_sound(200, 0.15);
+                    play_hit();
                 }
             }
 
             if ((other_collide.Layers & Layer.Player) && contact_timer <= 0) {
                 game.PlayerHealth--;
                 contact_timer = CONTACT_DAMAGE_COOLDOWN;
+                play_hurt();
             }
         }
     }

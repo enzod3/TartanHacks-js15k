@@ -1,7 +1,7 @@
 import {destroy_all} from "../components/com_children.js";
 import {Game, Layer, CameraMode} from "../game.js";
 import {Has} from "../world.js";
-import {play_sound} from "../sound.js";
+import {play_pickup} from "../sound.js";
 import {switch_camera} from "./sys_camera_toggle.js";
 
 export function sys_powerup(game: Game, delta: number) {
@@ -26,8 +26,7 @@ export function sys_powerup(game: Game, delta: number) {
             let collide = game.World.Collide[i];
             for (let collision of collide.Collisions) {
                 if (collision.Other === game.PowerupEntity) {
-                    play_sound(600, 0.2);
-                    play_sound(900, 0.15);
+                    play_pickup();
                     destroy_all(game.World, game.PowerupEntity);
                     game.PowerupEntity = -1;
 

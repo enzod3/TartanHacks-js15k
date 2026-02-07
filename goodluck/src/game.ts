@@ -39,6 +39,8 @@ import {sys_debug_lines} from "./systems/sys_debug_lines.js";
 import {World} from "./world.js";
 import {sys_boundary} from "./systems/sys_boundary.js";
 import {sys_powerup} from "./systems/sys_powerup.js";
+import {play_music} from "./sound.js";
+import {SONG} from "./music.js";
 
 export class Game extends Game3D {
     World = new World();
@@ -84,6 +86,7 @@ export class Game extends Game3D {
     Paused = false;
     ThirdPersonTimer = 0;
     PowerupEntity: Entity = -1;
+    MusicStarted = false;
 
     override FrameUpdate(delta: number) {
         if (!this.Paused) {
@@ -114,6 +117,12 @@ export class Game extends Game3D {
             sys_transform(this, delta);
             sys_boundary(this, delta);
             sys_powerup(this, delta);
+        }
+
+        // Start music on first click (AudioContext needs user gesture).
+        if (!this.MusicStarted && this.InputDelta["Mouse0"] === 1) {
+            this.MusicStarted = true;
+            play_music(SONG);
         }
 
         // Camera (after final transforms so there's no 1-frame lag).

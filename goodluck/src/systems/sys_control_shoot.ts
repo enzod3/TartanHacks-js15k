@@ -6,7 +6,7 @@ import {CameraChild} from "../blueprints/blu_camera_follow.js";
 import {CameraAnchor} from "../blueprints/blu_player.js";
 import {set_position, set_scale} from "../components/com_transform.js";
 import {CameraMode, Game, WeaponType} from "../game.js";
-import {play_sound} from "../sound.js";
+import {play_gunshot} from "../sound.js";
 
 const BULLET_SPEED = 80;
 const INFANTRY_COOLDOWN = 0.15;
@@ -83,7 +83,7 @@ export function sys_control_shoot(game: Game, delta: number) {
     }
 
     if (game.Weapon === WeaponType.Shotgun) {
-        play_sound(400, 0.15);
+        play_gunshot(0.6);
         game.ShootCooldown = SHOTGUN_COOLDOWN;
 
         // Right and up vectors for offsetting pellets in a cone.
@@ -123,7 +123,7 @@ export function sys_control_shoot(game: Game, delta: number) {
             rigid_body.VelocityLinear[2] = dz * BULLET_SPEED;
         }
     } else {
-        play_sound(800, 0.1);
+        play_gunshot(1.0);
         game.ShootCooldown = INFANTRY_COOLDOWN;
 
         let bullet = instantiate(game, blueprint_bullet(game));
