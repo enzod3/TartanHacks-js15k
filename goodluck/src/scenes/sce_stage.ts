@@ -9,7 +9,7 @@ import {light_directional} from "../components/com_light.js";
 import {render_textured_shaded} from "../components/com_render.js";
 import {RigidKind, rigid_body} from "../components/com_rigid_body.js";
 import {set_position, set_rotation, set_scale, transform} from "../components/com_transform.js";
-import {Game, Layer} from "../game.js";
+import {Game, Layer, WaveState} from "../game.js";
 import {Has} from "../world.js";
 import {World} from "../world.js";
 
@@ -17,6 +17,12 @@ export function scene_stage(game: Game) {
     game.World = new World();
     game.ViewportResized = true;
     Enemies.length = 0;
+
+    game.Wave = 1;
+    game.WaveState = WaveState.Spawning;
+    game.WaveEnemiesTotal = 5;
+    game.WaveEnemiesSpawned = 0;
+    game.Paused = false;
 
     // Ground collision (invisible).
     instantiate(game, [

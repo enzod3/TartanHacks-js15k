@@ -63,32 +63,44 @@ export class Game extends Game3D {
     PlayerHealth = 10;
     PlayerMaxHealth = 10;
 
+    Wave = 1;
+    WaveState: WaveState = WaveState.Spawning;
+    WaveEnemiesTotal = 5;
+    WaveEnemiesSpawned = 0;
+    Weapon: WeaponType = WeaponType.Infantry;
+    BulletDamage = 1;
+    ShotgunPelletDamage = 0.4;
+    ShootCooldown = 0;
+    Paused = false;
+
     override FrameUpdate(delta: number) {
-        // Collisions and physics.
-        sys_physics_integrate(this, delta);
-        sys_transform(this, delta);
-        sys_physics_kinematic(this, delta);
-        sys_collide(this, delta);
-        sys_physics_resolve(this, delta);
-        sys_transform(this, delta);
+        if (!this.Paused) {
+            // Collisions and physics.
+            sys_physics_integrate(this, delta);
+            sys_transform(this, delta);
+            sys_physics_kinematic(this, delta);
+            sys_collide(this, delta);
+            sys_physics_resolve(this, delta);
+            sys_transform(this, delta);
 
-        // Player input.
-        sys_control_keyboard(this, delta);
-        sys_control_joystick(this, delta);
-        sys_control_mouse_move(this, delta);
-        sys_control_jump(this, delta);
-        sys_camera_toggle(this, delta);
-        sys_control_shoot(this, delta);
+            // Player input.
+            sys_control_keyboard(this, delta);
+            sys_control_joystick(this, delta);
+            sys_control_mouse_move(this, delta);
+            sys_control_jump(this, delta);
+            sys_camera_toggle(this, delta);
+            sys_control_shoot(this, delta);
 
-        // Game logic.
-        sys_enemy_ai(this, delta);
-        sys_enemy_spawn(this, delta);
-        sys_damage(this, delta);
-        sys_lifespan(this, delta);
-        sys_move(this, delta);
-        sys_mimic(this, delta);
-        sys_transform(this, delta);
-        sys_boundary(this, delta);
+            // Game logic.
+            sys_enemy_ai(this, delta);
+            sys_enemy_spawn(this, delta);
+            sys_damage(this, delta);
+            sys_lifespan(this, delta);
+            sys_move(this, delta);
+            sys_mimic(this, delta);
+            sys_transform(this, delta);
+            sys_boundary(this, delta);
+        }
 
         // Camera (after final transforms so there's no 1-frame lag).
         sys_resize(this, delta);
@@ -114,4 +126,15 @@ export const enum Layer {
 export const enum CameraMode {
     TopDown,
     FirstPerson,
+}
+
+export const enum WaveState {
+    Spawning,
+    Fighting,
+    Upgrading,
+}
+
+export const enum WeaponType {
+    Infantry,
+    Shotgun,
 }

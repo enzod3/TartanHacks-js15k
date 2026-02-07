@@ -5,23 +5,30 @@ import {blueprint_bullet} from "../blueprints/blu_bullet.js";
 import {CameraChild} from "../blueprints/blu_camera_follow.js";
 import {CameraAnchor} from "../blueprints/blu_player.js";
 import {set_position, set_scale} from "../components/com_transform.js";
-import {CameraMode, Game} from "../game.js";
+import {CameraMode, Game, WeaponType} from "../game.js";
 import {play_sound} from "../sound.js";
 
 const BULLET_SPEED = 80;
+const INFANTRY_COOLDOWN = 0.15;
+const SHOTGUN_COOLDOWN = 0.6;
+const SHOTGUN_PELLETS = 16;
+const SHOTGUN_SPREAD = Math.PI / 12; // ~15 degrees cone radius
 
 export function sys_control_shoot(game: Game, delta: number) {
-    if (game.InputDelta["Mouse0"] !== 1) {
+    game.ShootCooldown -= delta;
+
+    if (game.InputDelta["Mouse0"] !== 1 && !game.InputState["Mouse0"]) {
         return;
     }
 
-    play_sound(800, 0.1);
+    if (game.ShootCooldown > 0) {
+        return;
+    }
 
     let forward: Vec3 = [0, 0, 0];
     let position: Vec3 = [0, 0, 0];
 
     if (game.CameraMode === CameraMode.FirstPerson) {
-        // First person: shoot where camera looks.
         let cam_world = game.World.Transform[CameraChild].World;
         mat4_get_forward(forward, cam_world);
         forward[0] = -forward[0];
@@ -32,7 +39,6 @@ export function sys_control_shoot(game: Game, delta: number) {
         position[1] += forward[1] * 1.5 - 0.3;
         position[2] += forward[2] * 1.5;
     } else {
-        // Top-down: shoot in the player's facing direction (horizontal).
         let player_parent = game.World.Transform[CameraAnchor].Parent!;
         let player_world = game.World.Transform[player_parent].World;
         mat4_get_forward(forward, player_world);
@@ -48,12 +54,59 @@ export function sys_control_shoot(game: Game, delta: number) {
         position[2] += forward[2] * 1.0;
     }
 
-    let bullet = instantiate(game, blueprint_bullet(game));
-    set_position(position[0], position[1], position[2])(game, bullet);
-    set_scale(0.15, 0.15, 0.15)(game, bullet);
+    if (game.Weapon === WeaponType.Shotgun) {
+        play_sound(400, 0.15);
+        game.ShootCooldown = SHOTGUN_COOLDOWN;
 
-    let rigid_body = game.World.RigidBody[bullet];
-    rigid_body.VelocityLinear[0] = forward[0] * BULLET_SPEED;
-    rigid_body.VelocityLinear[1] = forward[1] * BULLET_SPEED;
-    rigid_body.VelocityLinear[2] = forward[2] * BULLET_SPEED;
+        // Right and up vectors for offsetting pellets in a cone.
+        let right: Vec3 = [forward[2], 0, -forward[0]];
+        let rlen = Math.sqrt(right[0] * right[0] + right[2] * right[2]);
+        if (rlen > 0) {
+            right[0] /= rlen;
+            right[2] /= rlen;
+        }
+        let up: Vec3 = [
+            right[1] * forward[2] - right[2] * forward[1],
+            right[2] * forward[0] - right[0] * forward[2],
+            right[0] * forward[1] - right[1] * forward[0],
+        ];
+
+        for (let i = 0; i < SHOTGUN_PELLETS; i++) {
+            // Random point in a circle, sqrt for uniform distribution.
+            let r = Math.sqrt(Math.random()) * SHOTGUN_SPREAD;
+            let theta = Math.random() * Math.PI * 2;
+            let h_off = Math.cos(theta) * r;
+            let v_off = Math.sin(theta) * r;
+
+            let dx = forward[0] + right[0] * h_off + up[0] * v_off;
+            let dy = forward[1] + right[1] * h_off + up[1] * v_off;
+            let dz = forward[2] + right[2] * h_off + up[2] * v_off;
+
+            let len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+            dx /= len;
+            dy /= len;
+            dz /= len;
+
+            let bullet = instantiate(game, blueprint_bullet(game));
+            set_position(position[0], position[1], position[2])(game, bullet);
+            set_scale(0.08, 0.08, 0.08)(game, bullet);
+
+            let rigid_body = game.World.RigidBody[bullet];
+            rigid_body.VelocityLinear[0] = dx * BULLET_SPEED;
+            rigid_body.VelocityLinear[1] = dy * BULLET_SPEED;
+            rigid_body.VelocityLinear[2] = dz * BULLET_SPEED;
+        }
+    } else {
+        play_sound(800, 0.1);
+        game.ShootCooldown = INFANTRY_COOLDOWN;
+
+        let bullet = instantiate(game, blueprint_bullet(game));
+        set_position(position[0], position[1], position[2])(game, bullet);
+        set_scale(0.15, 0.15, 0.15)(game, bullet);
+
+        let rigid_body = game.World.RigidBody[bullet];
+        rigid_body.VelocityLinear[0] = forward[0] * BULLET_SPEED;
+        rigid_body.VelocityLinear[1] = forward[1] * BULLET_SPEED;
+        rigid_body.VelocityLinear[2] = forward[2] * BULLET_SPEED;
+    }
 }

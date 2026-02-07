@@ -7,7 +7,7 @@ import {lifespan} from "../components/com_lifespan.js";
 import {render_colored_shaded} from "../components/com_render.js";
 import {RigidKind, rigid_body} from "../components/com_rigid_body.js";
 import {set_position, set_scale, transform} from "../components/com_transform.js";
-import {Game, Layer} from "../game.js";
+import {Game, Layer, WeaponType} from "../game.js";
 import {play_sound} from "../sound.js";
 import {Has} from "../world.js";
 
@@ -33,7 +33,8 @@ export function sys_damage(game: Game, delta: number) {
 
             if (other_collide.Layers & Layer.Bullet) {
                 destroy_all(game.World, other);
-                enemy.Health--;
+                let dmg = game.Weapon === WeaponType.Shotgun ? game.ShotgunPelletDamage : game.BulletDamage;
+                enemy.Health -= dmg;
 
                 let ratio = Math.max(0, enemy.Health / enemy.MaxHealth);
                 let bar_transform = game.World.Transform[enemy.HealthBar];
