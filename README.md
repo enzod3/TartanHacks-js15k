@@ -8,10 +8,18 @@ Built for [TartanHacks](https://tartanhacks.com/) using [Goodluck](https://githu
 
 ## Controls
 
+**Mobile / Touch**
 - **Left side** of screen: move (virtual joystick)
 - **Right side** of screen: look (pan)
 - **Tap** to shoot
-- Collect blue orbs for 3rd person mode
+
+**Desktop**
+- **WASD**: move
+- **Mouse**: look (click to lock cursor)
+- **Click**: shoot
+- **Space**: jump
+
+Collect blue orbs for 3rd person mode
 
 ## Gameplay
 
